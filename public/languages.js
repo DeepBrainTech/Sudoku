@@ -2,11 +2,16 @@
 const languages = {
     zh: {
         // 页面标题和头部
-        title: "数独围棋棋盘游戏",
+        title: "数独",
         score: "得分",
         
         // 象棋符号说明
         chessSymbols: "象棋符号",
+        
+        // 棋盘大小选择
+        boardSize: "棋盘大小",
+        size9x9: "9x9 (标准)",
+        size6x6: "6x6 (简单)",
         
         // 难度选择
         difficulty: "难度选择",
@@ -28,12 +33,13 @@ const languages = {
         
         // 游戏说明
         instructions: "游戏说明",
-        instruction1: "点击格子选择位置，然后输入数字1-9",
+        instruction1: "点击格子选择位置，然后输入数字1-9（9x9）或1-6（6x6）",
         instruction2: "使用提示按钮获得正确答案",
         instruction3: "使用铅笔模式做笔记",
         instruction4: "使用橡皮模式清除内容",
         instruction5: "开启象棋主题用象棋符号代替数字",
         instruction6: "每填对一个数字得100分，完成行/列/宫得500分",
+        instruction7: "6x6数独使用2x3宫格，数字范围1-6",
         
         // 游戏消息
         cellNotEmpty: "格子不为空！",
@@ -43,6 +49,12 @@ const languages = {
         finalScore: "最终得分",
         victoryMessage: "恭喜！\n您在 ⏱ {time} 内完成并得分 {score}，超越了全球99.9%的玩家！您的大脑刚刚创造了新的智慧记录。🧠✨\n\n截图分享您的成就给朋友和家人吧！\n直接发布到Instagram、Facebook、X、WhatsApp或微信。",
         
+        // 游戏说明按钮
+        gameInstructions: "游戏说明",
+        
+        // 主题选择
+        numberTheme: "数字主题",
+        
         // 语言切换
         language: "语言",
         chinese: "中文",
@@ -51,11 +63,16 @@ const languages = {
     
     en: {
         // Page title and header
-        title: "Sudoku Go Board Game",
+        title: "Sudoku",
         score: "Score",
         
         // Chess symbols legend
         chessSymbols: "Chess Symbols",
+        
+        // Board size selection
+        boardSize: "Board Size",
+        size9x9: "9x9 (Standard)",
+        size6x6: "6x6 (Easy)",
         
         // Difficulty selection
         difficulty: "Difficulty Selection",
@@ -72,17 +89,18 @@ const languages = {
         hint: "Hint",
         pencil: "Pencil",
         eraser: "Eraser",
-        generate: "Generate New",
+        generate: "Generate New Puzzle",
         chessTheme: "♕ Chess Theme ♘",
         
         // Game instructions
         instructions: "Game Instructions",
-        instruction1: "Click on a cell to select position, then input numbers 1-9",
+        instruction1: "Move your mouse over the cell, then input numbers 1-9 (9x9) or 1-6 (6x6)",
         instruction2: "Use Hint button to get correct answers",
         instruction3: "Use Pencil mode to make notes",
         instruction4: "Use Eraser mode to clear content",
         instruction5: "Enable Chess Theme to use chess symbols instead of numbers",
         instruction6: "Get 100 points for each correct number, 500 points for completing row/column/box",
+
         
         // Game messages
         cellNotEmpty: "Cell is not empty!",
@@ -91,6 +109,12 @@ const languages = {
         puzzleSolved: "You solved the puzzle!",
         finalScore: "Final Score",
         victoryMessage: "Congratulations!\nYou finished in ⏱ {time} and scored {score}, beating 99.9% of players worldwide! Your brain just set a new record for brilliance. 🧠✨\n\nTake a snapshot and share your achievement with friends and family!\nPost it directly to Instagram, Facebook, X, WhatsApp, or WeChat.",
+        
+        // Game instructions button
+        gameInstructions: "Game Instructions",
+        
+        // Theme selection
+        numberTheme: "Number Theme",
         
         // Language switching
         language: "Language",
@@ -150,6 +174,16 @@ class LanguageManager {
     }
     
     updateSpecialElements() {
+        // 更新棋盘大小标签
+        const boardSizeRadios = document.querySelectorAll('input[name="boardSize"]');
+        const boardSizeLabels = ['size9x9', 'size6x6'];
+        boardSizeRadios.forEach((radio, index) => {
+            const label = radio.nextElementSibling;
+            if (label) {
+                label.textContent = this.getText(boardSizeLabels[index]);
+            }
+        });
+        
         // 更新难度标签
         const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
         const difficultyLabels = ['easy', 'normal', 'hard'];
@@ -168,7 +202,9 @@ class LanguageManager {
         const legend = document.getElementById('legend');
         if (legend) {
             legend.innerHTML = '';
-            for (let i = 1; i <= 9; i++) {
+            // 获取当前棋盘大小，如果没有游戏实例则默认为9
+            const boardSize = window.sudokuGame ? window.sudokuGame.SIZE : 9;
+            for (let i = 1; i <= boardSize; i++) {
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 const [symbol, color] = this.getChessSymbolAndColor(i);
@@ -185,10 +221,10 @@ class LanguageManager {
             3: ['♗', '#1976d2'],  // Blue bishop
             4: ['♕', '#222'],     // Dark queen
             5: ['♔', '#222'],     // Dark king
-            6: ['♝', '#d32f2f'],  // Red bishop
+            6: ['♙', '#222'],     // Dark pawn
             7: ['♞', '#d32f2f'],  // Red knight
             8: ['♜', '#d32f2f'],  // Red rook
-            9: ['♙', '#222'],     // Dark pawn
+            9: ['♝', '#d32f2f'],  // Red bishop
         };
         return mapping[num] || [num.toString(), '#222'];
     }

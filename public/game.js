@@ -18,7 +18,8 @@ class SudokuGame {
         this.hintMode = false;
         this.pencilMode = false;
         this.eraserMode = false;
-        this.chessTheme = false;
+        this.chessTheme = false; // 默认为数字主题
+        this.mahjongTheme = false; // 默认为非麻将主题
         
         // 铅笔标记
         this.pencilMarks = Array(this.SIZE).fill().map(() => Array(this.SIZE).fill().map(() => new Set()));
@@ -35,6 +36,21 @@ class SudokuGame {
         this.gameStartTime = null;
         
         this.initializeGame();
+    }
+    
+    setBoardSize(size) {
+        this.SIZE = parseInt(size);
+        this.cell = (this.side - 2 * this.margin) / this.SIZE;
+        
+        // 重新初始化铅笔标记
+        this.pencilMarks = Array(this.SIZE).fill().map(() => Array(this.SIZE).fill().map(() => new Set()));
+        
+        // 重新生成谜题
+        this.generatePuzzles();
+        this.updatePuzzleSelector();
+        this.resetModes();
+        this.updateLegend();
+        this.drawGrid();
     }
     
     initializeGame() {
@@ -58,13 +74,27 @@ class SudokuGame {
             }
         }
         
-        // 检查3x3宫
-        const startRow = Math.floor(row / 3) * 3;
-        const startCol = Math.floor(col / 3) * 3;
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                if (board[startRow + i][startCol + j] === num) {
-                    return false;
+        // 检查宫格
+        if (this.SIZE === 9) {
+            // 9x9数独：3x3宫格
+            const startRow = Math.floor(row / 3) * 3;
+            const startCol = Math.floor(col / 3) * 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[startRow + i][startCol + j] === num) {
+                        return false;
+                    }
+                }
+            }
+        } else if (this.SIZE === 6) {
+            // 6x6数独：2x3宫格
+            const startRow = Math.floor(row / 2) * 2;
+            const startCol = Math.floor(col / 3) * 3;
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[startRow + i][startCol + j] === num) {
+                        return false;
+                    }
                 }
             }
         }
@@ -75,7 +105,7 @@ class SudokuGame {
         for (let r = 0; r < this.SIZE; r++) {
             for (let c = 0; c < this.SIZE; c++) {
                 if (board[r][c] === 0) {
-                    for (let num = 1; num <= 9; num++) {
+                    for (let num = 1; num <= this.SIZE; num++) {
                         if (this.isValid(board, r, c, num)) {
                             board[r][c] = num;
                             if (this.solve(board)) {
@@ -94,7 +124,7 @@ class SudokuGame {
     generateFullBoard() {
         for (let attempt = 0; attempt < 10; attempt++) {
             const board = Array(this.SIZE).fill().map(() => Array(this.SIZE).fill(0));
-            const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            const nums = Array.from({length: this.SIZE}, (_, i) => i + 1);
             
             const fill = () => {
                 for (let r = 0; r < this.SIZE; r++) {
@@ -125,7 +155,9 @@ class SudokuGame {
     }
     
     makePuzzle(board, difficulty = "easy") {
-        const clues = { easy: 40, normal: 32, hard: 25 };
+        const clues = this.SIZE === 9 ? 
+            { easy: 40, normal: 32, hard: 25 } : 
+            { easy: 20, normal: 16, hard: 12 };
         const keep = clues[difficulty];
         
         for (let attempt = 0; attempt < 10; attempt++) {
@@ -211,7 +243,14 @@ class SudokuGame {
         document.getElementById('pencilBtn').addEventListener('click', () => this.togglePencilMode());
         document.getElementById('eraserBtn').addEventListener('click', () => this.toggleEraserMode());
         document.getElementById('generateBtn').addEventListener('click', () => this.generateMorePuzzles());
-        document.getElementById('chessThemeBtn').addEventListener('click', () => this.toggleChessTheme());
+        document.getElementById('themeSelect').addEventListener('change', (e) => this.changeTheme(e.target.value));
+        
+        // 棋盘大小选择
+        document.querySelectorAll('input[name="boardSize"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                this.setBoardSize(radio.value);
+            });
+        });
         
         // 难度选择
         document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
@@ -220,6 +259,17 @@ class SudokuGame {
         
         // 谜题选择
         document.getElementById('puzzleSelect').addEventListener('change', () => this.selectPuzzle());
+        
+        // 游戏说明弹窗
+        document.getElementById('gameInstructionsBtn').addEventListener('click', () => this.showInstructionsModal());
+        document.getElementById('closeInstructions').addEventListener('click', () => this.hideInstructionsModal());
+        
+        // 点击弹窗外部关闭
+        document.getElementById('instructionsModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('instructionsModal')) {
+                this.hideInstructionsModal();
+            }
+        });
     }
     
     handleClick(e) {
@@ -276,6 +326,12 @@ class SudokuGame {
     }
     
     handleKeyPress(e) {
+        // ESC键关闭弹窗
+        if (e.key === 'Escape') {
+            this.hideInstructionsModal();
+            return;
+        }
+        
         if (!this.selected) return;
         
         const [r, c] = this.selected;
@@ -284,7 +340,7 @@ class SudokuGame {
         const key = e.key;
         
         if (this.eraserMode) {
-            if (key >= '1' && key <= '9') {
+            if (key >= '1' && key <= this.SIZE.toString()) {
                 const val = parseInt(key);
                 if (this.pencilMarks[r][c].has(val)) {
                     this.pencilMarks[r][c].delete(val);
@@ -299,7 +355,7 @@ class SudokuGame {
             return;
         }
         
-        if (key >= '1' && key <= '9') {
+        if (key >= '1' && key <= this.SIZE.toString()) {
             const val = parseInt(key);
             if (this.pencilMode) {
                 this.pencilMarks[r][c].add(val);
@@ -320,17 +376,34 @@ class SudokuGame {
                 this.drawGrid();
                 
                 let bonus = false;
-                const br = Math.floor(r / 3) * 3;
-                const bc = Math.floor(c / 3) * 3;
-                const block = [];
-                for (let rr = br; rr < br + 3; rr++) {
-                    for (let cc = bc; cc < bc + 3; cc++) {
-                        block.push(this.board[rr][cc]);
+                if (this.SIZE === 9) {
+                    // 9x9数独：3x3宫格
+                    const br = Math.floor(r / 3) * 3;
+                    const bc = Math.floor(c / 3) * 3;
+                    const block = [];
+                    for (let rr = br; rr < br + 3; rr++) {
+                        for (let cc = bc; cc < bc + 3; cc++) {
+                            block.push(this.board[rr][cc]);
+                        }
                     }
-                }
-                if (block.every(n => n !== 0)) {
-                    bonus = true;
-                    this.highlightBlock(br, bc);
+                    if (block.every(n => n !== 0)) {
+                        bonus = true;
+                        this.highlightBlock(br, bc, 3, 3);
+                    }
+                } else if (this.SIZE === 6) {
+                    // 6x6数独：2x3宫格
+                    const br = Math.floor(r / 2) * 2;
+                    const bc = Math.floor(c / 3) * 3;
+                    const block = [];
+                    for (let rr = br; rr < br + 2; rr++) {
+                        for (let cc = bc; cc < bc + 3; cc++) {
+                            block.push(this.board[rr][cc]);
+                        }
+                    }
+                    if (block.every(n => n !== 0)) {
+                        bonus = true;
+                        this.highlightBlock(br, bc, 2, 3);
+                    }
                 }
                 if (this.board[r].every(n => n !== 0)) {
                     bonus = true;
@@ -403,10 +476,10 @@ class SudokuGame {
         this.updateCursor();
     }
     
-    toggleChessTheme() {
-        this.chessTheme = !this.chessTheme;
-        const btn = document.getElementById('chessThemeBtn');
-        btn.classList.toggle('active', this.chessTheme);
+    changeTheme(theme) {
+        if (theme === '') return; // 如果选择的是"Theme"占位符，不做任何操作
+        this.chessTheme = (theme === 'chess');
+        this.mahjongTheme = (theme === 'mahjong');
         this.updateLegend();
         this.drawGrid();
     }
@@ -471,28 +544,12 @@ class SudokuGame {
         this.ctx.fillRect(0, 0, this.side, this.side);
         
         const boardEnd = this.margin + this.SIZE * this.cell;
-        const highlightLines = new Set([0, 3, 6, this.SIZE]);
         
-        // 绘制网格线
-        for (let i = 0; i <= this.SIZE; i++) {
-            const pos = this.margin + i * this.cell;
-            const lineWidth = highlightLines.has(i) ? 6 : 2;
-            const lineColor = highlightLines.has(i) ? '#d2691e' : '#8b5c2a';
-            
-            this.ctx.strokeStyle = lineColor;
-            this.ctx.lineWidth = lineWidth;
-            
-            // 水平线
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.margin, pos);
-            this.ctx.lineTo(boardEnd, pos);
-            this.ctx.stroke();
-            
-            // 垂直线
-            this.ctx.beginPath();
-            this.ctx.moveTo(pos, this.margin);
-            this.ctx.lineTo(pos, boardEnd);
-            this.ctx.stroke();
+        // 根据棋盘大小绘制不同的网格线
+        if (this.SIZE === 9) {
+            this.draw9x9Grid(boardEnd);
+        } else if (this.SIZE === 6) {
+            this.draw6x6Grid(boardEnd);
         }
         
         // 绘制数字
@@ -517,34 +574,175 @@ class SudokuGame {
         this.ctx.fillText(`★ ${this.score}`, this.side / 2, this.side - 10);
     }
     
+    draw9x9Grid(boardEnd) {
+        // 9x9数独：3x3宫格
+        const highlightRows = new Set([0, 3, 6, this.SIZE]);  // 行加粗位置
+        const highlightCols = new Set([0, 3, 6, this.SIZE]);  // 列加粗位置
+        
+        for (let i = 0; i <= this.SIZE; i++) {
+            const pos = this.margin + i * this.cell;
+            
+            // 绘制水平线（行）
+            const rowLineWidth = highlightRows.has(i) ? 6 : 2;
+            const rowLineColor = highlightRows.has(i) ? '#d2691e' : '#8b5c2a';
+            
+            this.ctx.strokeStyle = rowLineColor;
+            this.ctx.lineWidth = rowLineWidth;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.margin, pos);
+            this.ctx.lineTo(boardEnd, pos);
+            this.ctx.stroke();
+            
+            // 绘制垂直线（列）
+            const colLineWidth = highlightCols.has(i) ? 6 : 2;
+            const colLineColor = highlightCols.has(i) ? '#d2691e' : '#8b5c2a';
+            
+            this.ctx.strokeStyle = colLineColor;
+            this.ctx.lineWidth = colLineWidth;
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos, this.margin);
+            this.ctx.lineTo(pos, boardEnd);
+            this.ctx.stroke();
+        }
+    }
+    
+    draw6x6Grid(boardEnd) {
+        // 6x6数独：2x3宫格
+        const highlightRows = new Set([0, 2, 4, 6, this.SIZE]);  // 行加粗位置
+        const highlightCols = new Set([0, 3, 6, this.SIZE]);     // 列加粗位置
+        
+        for (let i = 0; i <= this.SIZE; i++) {
+            const pos = this.margin + i * this.cell;
+            
+            // 绘制水平线（行）
+            const rowLineWidth = highlightRows.has(i) ? 6 : 2;
+            const rowLineColor = highlightRows.has(i) ? '#d2691e' : '#8b5c2a';
+            
+            this.ctx.strokeStyle = rowLineColor;
+            this.ctx.lineWidth = rowLineWidth;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.margin, pos);
+            this.ctx.lineTo(boardEnd, pos);
+            this.ctx.stroke();
+            
+            // 绘制垂直线（列）
+            const colLineWidth = highlightCols.has(i) ? 6 : 2;
+            const colLineColor = highlightCols.has(i) ? '#d2691e' : '#8b5c2a';
+            
+            this.ctx.strokeStyle = colLineColor;
+            this.ctx.lineWidth = colLineWidth;
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos, this.margin);
+            this.ctx.lineTo(pos, boardEnd);
+            this.ctx.stroke();
+        }
+    }
+    
     drawCircle(r, c, num, fixed = false) {
         const x = this.margin + c * this.cell + this.cell / 2;
         const y = this.margin + r * this.cell + this.cell / 2;
         const radius = this.cell * 0.42;
         
-        // 绘制圆圈
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        this.ctx.fillStyle = fixed ? '#fffbe6' : '#e0f7fa';
-        this.ctx.fill();
-        this.ctx.strokeStyle = fixed ? '#333' : '#1976d2';
-        this.ctx.lineWidth = 3;
-        this.ctx.stroke();
+        // 如果不是麻将主题，绘制圆圈
+        if (!this.mahjongTheme) {
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            this.ctx.fillStyle = fixed ? '#fffbe6' : '#e0f7fa';
+            this.ctx.fill();
+            this.ctx.strokeStyle = fixed ? '#333' : '#1976d2';
+            this.ctx.lineWidth = 3;
+            this.ctx.stroke();
+        }
         
         // 绘制数字或符号
         if (this.chessTheme) {
             const [symbol, color] = this.getChessSymbolAndColor(num);
             this.ctx.fillStyle = color;
             this.ctx.font = `bold ${Math.max(26, this.cell * 0.7)}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            
+            // 为不同的象棋符号提供精确的垂直偏移调整
+            let offsetY = y;
+            switch(symbol) {
+                case '♖': // 车 - 需要稍微向下偏移
+                case '♜':
+                    offsetY = y + this.cell * 0.03;
+                    break;
+                case '♘': // 马 - 需要稍微向下偏移
+                case '♞':
+                    offsetY = y + this.cell * 0.02;
+                    break;
+                case '♗': // 象 - 需要稍微向下偏移
+                case '♝':
+                    offsetY = y + this.cell * 0.02;
+                    break;
+                case '♕': // 后 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.02;
+                    break;
+                case '♔': // 王 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.02;
+                    break;
+                case '♙': // 兵 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.03;
+                    break;
+                default:
+                    offsetY = y + this.cell * 0.02;
+            }
+            
+            this.ctx.fillText(symbol, x, offsetY);
+        } else if (this.mahjongTheme) {
+            // 绘制麻将符号，直接填充整个格子
+            const [symbol, color] = this.getMahjongSymbolAndColor(num);
+            this.ctx.fillStyle = color;
+            this.ctx.font = `bold ${Math.max(40, this.cell * 1.0)}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            // 稍微向下调整位置
+            this.ctx.fillText(symbol, x, y + this.cell * 0.08);
         } else {
             this.ctx.fillStyle = fixed ? '#222' : '#1976d2';
             this.ctx.font = `bold ${Math.max(20, this.cell * (fixed ? 0.45 : 0.4))}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            const text = num.toString();
+            
+            // 为不同数字提供精确的垂直偏移调整
+            let offsetY = y;
+            switch(num) {
+                case 1: // 数字1 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.015;
+                    break;
+                case 2: // 数字2 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                case 3: // 数字3 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                case 4: // 数字4 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                case 5: // 数字5 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                case 6: // 数字6 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                case 7: // 数字7 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                case 8: // 数字8 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                case 9: // 数字9 - 需要稍微向下偏移
+                    offsetY = y + this.cell * 0.01;
+                    break;
+                default:
+                    offsetY = y + this.cell * 0.01;
+            }
+            
+            this.ctx.fillText(text, x, offsetY);
         }
-        
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        const text = this.chessTheme ? this.getChessSymbolAndColor(num)[0] : num.toString();
-        this.ctx.fillText(text, x, y);
     }
     
     drawPencilMarks(r, c) {
@@ -567,10 +765,25 @@ class SudokuGame {
             3: ['♗', '#1976d2'],  // 蓝象
             4: ['♕', '#222'],     // 黑后
             5: ['♔', '#222'],     // 黑王
-            6: ['♝', '#d32f2f'],  // 红象
+            6: ['♙', '#222'],     // 黑兵
             7: ['♞', '#d32f2f'],  // 红马
             8: ['♜', '#d32f2f'],  // 红车
-            9: ['♙', '#222'],     // 黑兵
+            9: ['♝', '#d32f2f'],  // 红象
+        };
+        return mapping[num] || [num.toString(), '#222'];
+    }
+
+    getMahjongSymbolAndColor(num) {
+        const mapping = {
+            1: ['🀐', '#2e7d32'], // 一条 - 绿色（带红色点缀）
+            2: ['🀑', '#2e7d32'], // 二条 - 绿色
+            3: ['🀒', '#2e7d32'], // 三条 - 绿色
+            4: ['🀓', '#2e7d32'], // 四条 - 绿色
+            5: ['🀔', '#2e7d32'], // 五条 - 绿色（中央红色）
+            6: ['🀕', '#2e7d32'], // 六条 - 绿色
+            7: ['🀖', '#2e7d32'], // 七条 - 绿色（顶部红色）
+            8: ['🀗', '#2e7d32'], // 八条 - 绿色
+            9: ['🀘', '#2e7d32']  // 九条 - 绿色（中央红色）
         };
         return mapping[num] || [num.toString(), '#222'];
     }
@@ -578,14 +791,28 @@ class SudokuGame {
     updateLegend() {
         // 如果语言管理器存在，使用其方法更新图例
         if (this.languageManager) {
-            this.languageManager.updateChessLegend();
+            if (this.chessTheme) {
+                this.languageManager.updateChessLegend();
+            } else if (this.mahjongTheme) {
+                this.updateMahjongLegend();
+            } else {
+                this.languageManager.updateChessLegend(); // 默认使用数字
+            }
         } else {
             // 备用方法
             const legend = document.getElementById('legend');
             if (legend) {
                 legend.innerHTML = '';
-                for (let i = 1; i <= 9; i++) {
-                    const [symbol, color] = this.getChessSymbolAndColor(i);
+                for (let i = 1; i <= this.SIZE; i++) {
+                    let symbol, color;
+                    if (this.chessTheme) {
+                        [symbol, color] = this.getChessSymbolAndColor(i);
+                    } else if (this.mahjongTheme) {
+                        [symbol, color] = this.getMahjongSymbolAndColor(i);
+                    } else {
+                        symbol = i.toString();
+                        color = '#222';
+                    }
                     const item = document.createElement('div');
                     item.className = 'legend-item';
                     item.innerHTML = `${i} → <span style="color: ${color}">${symbol}</span>`;
@@ -593,6 +820,32 @@ class SudokuGame {
                 }
             }
         }
+    }
+
+    updateMahjongLegend() {
+        const legend = document.getElementById('legend');
+        if (legend) {
+            legend.innerHTML = '';
+            for (let i = 1; i <= this.SIZE; i++) {
+                const [symbol, color] = this.getMahjongSymbolAndColor(i);
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `${i} → <span style="color: ${color}">${symbol}</span>`;
+                legend.appendChild(item);
+            }
+        }
+    }
+    
+    showInstructionsModal() {
+        const modal = document.getElementById('instructionsModal');
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+    }
+    
+    hideInstructionsModal() {
+        const modal = document.getElementById('instructionsModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // 恢复滚动
     }
     
     highlightIntersection(r, c) {
@@ -621,9 +874,9 @@ class SudokuGame {
         setTimeout(() => this.drawGrid(), 150);
     }
     
-    highlightBlock(br, bc) {
-        for (let rr = br; rr < br + 3; rr++) {
-            for (let cc = bc; cc < bc + 3; cc++) {
+    highlightBlock(br, bc, blockRows = 3, blockCols = 3) {
+        for (let rr = br; rr < br + blockRows; rr++) {
+            for (let cc = bc; cc < bc + blockCols; cc++) {
                 const x1 = this.margin + cc * this.cell;
                 const y1 = this.margin + rr * this.cell;
                 
@@ -685,17 +938,35 @@ class SudokuGame {
             }
         }
         
-        // 检查3x3宫
-        for (let br = 0; br < this.SIZE; br += 3) {
-            for (let bc = 0; bc < this.SIZE; bc += 3) {
-                const blockSet = new Set();
-                for (let r = br; r < br + 3; r++) {
-                    for (let c = bc; c < bc + 3; c++) {
-                        blockSet.add(this.board[r][c]);
+        // 检查宫格
+        if (this.SIZE === 9) {
+            // 9x9数独：3x3宫格
+            for (let br = 0; br < this.SIZE; br += 3) {
+                for (let bc = 0; bc < this.SIZE; bc += 3) {
+                    const blockSet = new Set();
+                    for (let r = br; r < br + 3; r++) {
+                        for (let c = bc; c < bc + 3; c++) {
+                            blockSet.add(this.board[r][c]);
+                        }
+                    }
+                    if (blockSet.size < this.SIZE || blockSet.has(0)) {
+                        return; // 未完成
                     }
                 }
-                if (blockSet.size < this.SIZE || blockSet.has(0)) {
-                    return; // 未完成
+            }
+        } else if (this.SIZE === 6) {
+            // 6x6数独：2x3宫格
+            for (let br = 0; br < this.SIZE; br += 2) {
+                for (let bc = 0; bc < this.SIZE; bc += 3) {
+                    const blockSet = new Set();
+                    for (let r = br; r < br + 2; r++) {
+                        for (let c = bc; c < bc + 3; c++) {
+                            blockSet.add(this.board[r][c]);
+                        }
+                    }
+                    if (blockSet.size < this.SIZE || blockSet.has(0)) {
+                        return; // 未完成
+                    }
                 }
             }
         }
@@ -758,36 +1029,45 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
         this.confettiContainer.style.zIndex = '9999';
         document.body.appendChild(this.confettiContainer);
         
-        // 撒花参数
-        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-        const confettiCount = 150;
-        const duration = 3000; // 3秒
+        // 撒花参数 - 增强版
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#ff4757', '#2ed573', '#ffa502', '#ff6348', '#ff3838', '#ff9f1a', '#ff6b35', '#f7931e'];
+        const totalDuration = 10000; // 10秒总持续时间
+        const pieceDuration = 4000; // 每个纸片持续4秒
+        const creationInterval = 50; // 每50ms创建一个纸片（更频繁）
         
-        // 创建彩色纸片
-        for (let i = 0; i < confettiCount; i++) {
-            setTimeout(() => {
-                this.createConfettiPiece(colors, duration);
-            }, i * 10); // 错开创建时间
-        }
-        
-        // 清理撒花容器
-        setTimeout(() => {
-            if (this.confettiContainer && this.confettiContainer.parentNode) {
-                this.confettiContainer.parentNode.removeChild(this.confettiContainer);
+        // 持续创建彩色纸片 - 增强版
+        const confettiInterval = setInterval(() => {
+            // 每次创建2-4个纸片，让效果更密集
+            const piecesCount = Math.floor(Math.random() * 3) + 2; // 2-4个纸片
+            for (let i = 0; i < piecesCount; i++) {
+                setTimeout(() => {
+                    this.createConfettiPiece(colors, pieceDuration);
+                }, i * 20); // 错开创建时间
             }
-        }, duration + 1000);
+        }, creationInterval);
+        
+        // 10秒后停止创建并清理
+        setTimeout(() => {
+            clearInterval(confettiInterval);
+            // 再等3秒让最后的纸片消失
+            setTimeout(() => {
+                if (this.confettiContainer && this.confettiContainer.parentNode) {
+                    this.confettiContainer.parentNode.removeChild(this.confettiContainer);
+                }
+            }, pieceDuration);
+        }, totalDuration);
     }
     
     createConfettiPiece(colors, duration) {
         const confetti = document.createElement('div');
         const color = colors[Math.floor(Math.random() * colors.length)];
-        const size = Math.random() * 10 + 5; // 5-15px
+        const size = Math.random() * 15 + 8; // 8-23px（更大）
         const startX = Math.random() * window.innerWidth;
-        const endX = startX + (Math.random() - 0.5) * 200;
-        const startY = -20;
-        const endY = window.innerHeight + 20;
+        const endX = startX + (Math.random() - 0.5) * 300; // 更大的水平移动
+        const startY = -30; // 从更高的位置开始
+        const endY = window.innerHeight + 30;
         const rotation = Math.random() * 360;
-        const rotationSpeed = (Math.random() - 0.5) * 720;
+        const rotationSpeed = (Math.random() - 0.5) * 1080; // 更快的旋转
         
         // 设置样式
         confetti.style.position = 'absolute';
@@ -799,7 +1079,8 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
         confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
         confetti.style.transform = `rotate(${rotation}deg)`;
         confetti.style.opacity = '1';
-        confetti.style.boxShadow = `0 0 6px ${color}`;
+        confetti.style.boxShadow = `0 0 12px ${color}, 0 0 24px ${color}40, 0 0 36px ${color}20`; // 增强发光效果
+        confetti.style.filter = 'brightness(1.2) saturate(1.3)'; // 增强亮度和饱和度
         
         this.confettiContainer.appendChild(confetti);
         
