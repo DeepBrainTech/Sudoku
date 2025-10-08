@@ -25,6 +25,9 @@
     "live-server": "^1.2.2",
     "serve": "^14.2.1"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/yourusername/sudoku-go-board-game.git"
