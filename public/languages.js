@@ -39,7 +39,7 @@ const languages = {
         instruction4: "使用橡皮模式清除内容",
         instruction5: "开启象棋主题用象棋符号代替数字",
         instruction6: "每填对一个数字得100分，完成行/列/宫得500分",
-        instruction7: "6x6数独使用2x3宫格，数字范围1-6",
+
         
         // 游戏消息
         cellNotEmpty: "格子不为空！",
@@ -53,7 +53,10 @@ const languages = {
         gameInstructions: "游戏说明",
         
         // 主题选择
+        theme: "主题",
         numberTheme: "数字主题",
+        chessTheme: "象棋主题",
+        mahjongTheme: "麻将主题",
         
         // 语言切换
         language: "语言",
@@ -100,7 +103,6 @@ const languages = {
         instruction4: "Use Eraser mode to clear content",
         instruction5: "Enable Chess Theme to use chess symbols instead of numbers",
         instruction6: "Get 100 points for each correct number, 500 points for completing row/column/box",
-
         
         // Game messages
         cellNotEmpty: "Cell is not empty!",
@@ -114,7 +116,10 @@ const languages = {
         gameInstructions: "Game Instructions",
         
         // Theme selection
+        theme: "Theme",
         numberTheme: "Number Theme",
+        chessTheme: "Chess Theme",
+        mahjongTheme: "Mahjong Theme",
         
         // Language switching
         language: "Language",

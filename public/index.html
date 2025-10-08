@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数独围棋棋盘游戏</title>
+    <title data-i18n="title">数独</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -17,10 +17,10 @@
         <header>
             <div class="header-left">
                 <select id="themeSelect" class="theme-select">
-                    <option value="" disabled selected>Theme</option>
-                    <option value="number">Number</option>
-                    <option value="chess">Chess</option>
-                    <option value="mahjong">Mahjong</option>
+                    <option value="" disabled selected data-i18n="theme">主题</option>
+                    <option value="number" data-i18n="numberTheme">数字主题</option>
+                    <option value="chess" data-i18n="chessTheme">象棋主题</option>
+                    <option value="mahjong" data-i18n="mahjongTheme">麻将主题</option>
                 </select>
                 
                 <div class="size-section">
@@ -37,7 +37,7 @@
                 </div>
             </div>
             <div class="header-center">
-                <h1 data-i18n="title">数独围棋棋盘游戏</h1>
+                <h1 data-i18n="title">数独</h1>
                 <div class="score-display">
                     <span class="score-label" data-i18n="score">得分:</span>
                     <span id="score">0</span>
@@ -111,6 +111,7 @@
                     <li data-i18n="instruction4">使用<strong>橡皮</strong>模式清除内容</li>
                     <li data-i18n="instruction5">开启<strong>象棋主题</strong>用象棋符号代替数字</li>
                     <li data-i18n="instruction6">每填对一个数字得100分，完成行/列/宫得500分</li>
+                    <li data-i18n="instruction7">6x6数独使用2x3宫格，数字范围1-6</li>
                 </ul>
             </div>
         </div>
