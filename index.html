@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数独围棋棋盘游戏</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>数独围棋棋盘游戏</h1>
+            <div class="score-display">
+                <span class="score-label">得分:</span>
+                <span id="score">0</span>
+            </div>
+        </header>
+
+        <div class="game-container">
+            <div class="game-board">
+                <canvas id="sudokuCanvas" width="720" height="720"></canvas>
+            </div>
+            
+            <div class="legend-panel">
+                <h3>象棋符号</h3>
+                <div id="legend"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="difficulty-section">
+                <h3>难度选择</h3>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="difficulty" value="easy" checked>
+                        <span>简单</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="difficulty" value="normal">
+                        <span>普通</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="difficulty" value="hard">
+                        <span>困难</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="puzzle-section">
+                <h3>谜题选择</h3>
+                <select id="puzzleSelect">
+                    <option value="0">谜题 1</option>
+                </select>
+            </div>
+
+            <div class="action-buttons">
+                <button id="startBtn" class="btn btn-primary">开始游戏</button>
+                <button id="hintBtn" class="btn btn-secondary">提示</button>
+                <button id="pencilBtn" class="btn btn-secondary">铅笔</button>
+                <button id="eraserBtn" class="btn btn-secondary">橡皮</button>
+                <button id="generateBtn" class="btn btn-secondary">生成新谜题</button>
+            </div>
+
+            <div class="theme-section">
+                <button id="chessThemeBtn" class="btn btn-theme">♕ 象棋主题 ♘</button>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>游戏说明</h3>
+            <ul>
+                <li>点击格子选择位置，然后输入数字1-9</li>
+                <li>使用<strong>提示</strong>按钮获得正确答案</li>
+                <li>使用<strong>铅笔</strong>模式做笔记</li>
+                <li>使用<strong>橡皮</strong>模式清除内容</li>
+                <li>开启<strong>象棋主题</strong>用象棋符号代替数字</li>
+                <li>每填对一个数字得100分，完成行/列/宫得500分</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

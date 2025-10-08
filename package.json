@@ -1,0 +1,33 @@
+{
+  "name": "sudoku-go-board-game",
+  "version": "1.0.0",
+  "description": "一个结合了围棋棋盘设计和象棋主题的数独游戏",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx live-server --port=3000",
+    "build": "echo 'No build process needed for static files'",
+    "deploy": "echo 'Ready for deployment to any static hosting service'"
+  },
+  "keywords": [
+    "sudoku",
+    "go",
+    "chess",
+    "game",
+    "puzzle",
+    "web",
+    "html5",
+    "canvas"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "serve": "^14.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/sudoku-go-board-game.git"
+  },
+  "homepage": "https://yourusername.github.io/sudoku-go-board-game"
+}
