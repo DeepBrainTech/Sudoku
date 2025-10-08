@@ -41,6 +41,7 @@ const languages = {
         congratulations: "恭喜！",
         puzzleSolved: "您解决了这个谜题！",
         finalScore: "最终得分",
+        victoryMessage: "恭喜！\n您在 ⏱ {time} 内完成并得分 {score}，超越了全球99.9%的玩家！您的大脑刚刚创造了新的智慧记录。🧠✨\n\n截图分享您的成就给朋友和家人吧！\n直接发布到Instagram、Facebook、X、WhatsApp或微信。",
         
         // 语言切换
         language: "语言",
@@ -89,6 +90,7 @@ const languages = {
         congratulations: "Congratulations!",
         puzzleSolved: "You solved the puzzle!",
         finalScore: "Final Score",
+        victoryMessage: "Congratulations!\nYou finished in ⏱ {time} and scored {score}, beating 99.9% of players worldwide! Your brain just set a new record for brilliance. 🧠✨\n\nTake a snapshot and share your achievement with friends and family!\nPost it directly to Instagram, Facebook, X, WhatsApp, or WeChat.",
         
         // Language switching
         language: "Language",
