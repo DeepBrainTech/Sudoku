@@ -41,6 +41,7 @@ class SudokuGame {
         this.generatePuzzles();
         this.setupEventListeners();
         this.updateLegend();
+        this.updateCursor();
         this.drawGrid();
         this.updatePuzzleSelector();
     }
@@ -342,6 +343,9 @@ class SudokuGame {
                 } else if (gained) {
                     this.drawGrid();
                 }
+                
+                // 检查是否完成数独
+                this.checkSolution();
             } else {
                 const message = this.languageManager ? 
                     `${val} ${this.languageManager.getText('incorrectEntry')}` : 
@@ -375,6 +379,7 @@ class SudokuGame {
     toggleHintMode() {
         this.hintMode = !this.hintMode;
         this.updateButtonStates();
+        this.updateCursor();
     }
     
     togglePencilMode() {
@@ -383,6 +388,7 @@ class SudokuGame {
             this.eraserMode = false;
         }
         this.updateButtonStates();
+        this.updateCursor();
     }
     
     toggleEraserMode() {
@@ -391,6 +397,7 @@ class SudokuGame {
             this.pencilMode = false;
         }
         this.updateButtonStates();
+        this.updateCursor();
     }
     
     toggleChessTheme() {
@@ -405,6 +412,18 @@ class SudokuGame {
         document.getElementById('hintBtn').classList.toggle('active', this.hintMode);
         document.getElementById('pencilBtn').classList.toggle('active', this.pencilMode);
         document.getElementById('eraserBtn').classList.toggle('active', this.eraserMode);
+    }
+    
+    updateCursor() {
+        if (this.hintMode) {
+            this.canvas.style.cursor = 'help';
+        } else if (this.pencilMode) {
+            this.canvas.style.cursor = 'text';
+        } else if (this.eraserMode) {
+            this.canvas.style.cursor = 'grab';
+        } else {
+            this.canvas.style.cursor = 'crosshair';
+        }
     }
     
     updatePuzzleSelector() {
@@ -471,8 +490,6 @@ class SudokuGame {
             this.ctx.lineTo(pos, boardEnd);
             this.ctx.stroke();
         }
-        
-
         
         // 绘制数字
         if (this.puzzle) {
@@ -642,6 +659,52 @@ class SudokuGame {
             this.ctx.strokeRect(x1 + 3, y1 + 3, this.cell - 6, this.cell - 6);
         }
         setTimeout(() => this.drawGrid(), 350);
+    }
+    
+    checkSolution() {
+        // 检查行
+        for (let r = 0; r < this.SIZE; r++) {
+            const rowSet = new Set(this.board[r]);
+            if (rowSet.size < this.SIZE || rowSet.has(0)) {
+                return; // 未完成
+            }
+        }
+        
+        // 检查列
+        for (let c = 0; c < this.SIZE; c++) {
+            const colSet = new Set();
+            for (let r = 0; r < this.SIZE; r++) {
+                colSet.add(this.board[r][c]);
+            }
+            if (colSet.size < this.SIZE || colSet.has(0)) {
+                return; // 未完成
+            }
+        }
+        
+        // 检查3x3宫
+        for (let br = 0; br < this.SIZE; br += 3) {
+            for (let bc = 0; bc < this.SIZE; bc += 3) {
+                const blockSet = new Set();
+                for (let r = br; r < br + 3; r++) {
+                    for (let c = bc; c < bc + 3; c++) {
+                        blockSet.add(this.board[r][c]);
+                    }
+                }
+                if (blockSet.size < this.SIZE || blockSet.has(0)) {
+                    return; // 未完成
+                }
+            }
+        }
+        
+        // 数独完成！显示庆祝消息
+        const congratulations = this.languageManager ? 
+            this.languageManager.getText('congratulations') : '恭喜！';
+        const puzzleSolved = this.languageManager ? 
+            this.languageManager.getText('puzzleSolved') : '您解决了这个谜题！';
+        const finalScore = this.languageManager ? 
+            this.languageManager.getText('finalScore') : '最终得分';
+        
+        alert(`${congratulations}\n${puzzleSolved}\n${finalScore}: ${this.score}`);
     }
 }
 
