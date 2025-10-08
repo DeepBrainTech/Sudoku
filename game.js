@@ -28,10 +28,16 @@ class SudokuGame {
         this.currentIndices = { easy: 0, normal: 0, hard: 0 };
         this.numPuzzles = 5;
         
+        // 语言管理器
+        this.languageManager = null;
+        
         this.initializeGame();
     }
     
     initializeGame() {
+        // 初始化语言管理器
+        this.languageManager = new LanguageManager();
+        
         this.generatePuzzles();
         this.setupEventListeners();
         this.updateLegend();
@@ -233,17 +239,18 @@ class SudokuGame {
             return;
         }
         
-        if (this.hintMode) {
-            if (this.board[r][c] === 0) {
-                const correct = this.solution[r][c];
-                this.board[r][c] = correct;
-                this.drawGrid();
-                this.flashCell(r, c);
-            } else {
-                alert("格子不为空！");
+            if (this.hintMode) {
+                if (this.board[r][c] === 0) {
+                    const correct = this.solution[r][c];
+                    this.board[r][c] = correct;
+                    this.drawGrid();
+                    this.flashCell(r, c);
+                } else {
+                    const message = this.languageManager ? this.languageManager.getText('cellNotEmpty') : "格子不为空！";
+                    alert(message);
+                }
+                return;
             }
-            return;
-        }
         
         this.selected = (this.selected && this.selected[0] === r && this.selected[1] === c) ? null : [r, c];
         this.drawGrid();
@@ -336,7 +343,10 @@ class SudokuGame {
                     this.drawGrid();
                 }
             } else {
-                alert(`${val} 不是这个格子的正确答案。`);
+                const message = this.languageManager ? 
+                    `${val} ${this.languageManager.getText('incorrectEntry')}` : 
+                    `${val} 不是这个格子的正确答案。`;
+                alert(message);
             }
         } else if (key === '0' || key === ' ' || key === 'Backspace' || key === 'Delete') {
             this.board[r][c] = 0;
@@ -405,7 +415,8 @@ class SudokuGame {
         for (let i = 0; i < this.puzzles[diff].length; i++) {
             const option = document.createElement('option');
             option.value = i;
-            option.textContent = `谜题 ${i + 1}`;
+            const puzzleText = this.languageManager ? this.languageManager.getText('puzzleNumber') : '谜题';
+            option.textContent = `${puzzleText} ${i + 1}`;
             select.appendChild(option);
         }
     }
@@ -461,16 +472,7 @@ class SudokuGame {
             this.ctx.stroke();
         }
         
-        // 绘制星位
-        const starPoints = [[1, 1], [1, 7], [7, 1], [7, 7], [4, 4]];
-        this.ctx.fillStyle = '#8b5c2a';
-        for (const [r, c] of starPoints) {
-            const x = this.margin + (c + 0.5) * this.cell;
-            const y = this.margin + (r + 0.5) * this.cell;
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, 6, 0, 2 * Math.PI);
-            this.ctx.fill();
-        }
+
         
         // 绘制数字
         if (this.puzzle) {
@@ -553,15 +555,22 @@ class SudokuGame {
     }
     
     updateLegend() {
-        const legend = document.getElementById('legend');
-        legend.innerHTML = '';
-        
-        for (let i = 1; i <= 9; i++) {
-            const [symbol, color] = this.getChessSymbolAndColor(i);
-            const item = document.createElement('div');
-            item.className = 'legend-item';
-            item.innerHTML = `${i} → <span style="color: ${color}">${symbol}</span>`;
-            legend.appendChild(item);
+        // 如果语言管理器存在，使用其方法更新图例
+        if (this.languageManager) {
+            this.languageManager.updateChessLegend();
+        } else {
+            // 备用方法
+            const legend = document.getElementById('legend');
+            if (legend) {
+                legend.innerHTML = '';
+                for (let i = 1; i <= 9; i++) {
+                    const [symbol, color] = this.getChessSymbolAndColor(i);
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    item.innerHTML = `${i} → <span style="color: ${color}">${symbol}</span>`;
+                    legend.appendChild(item);
+                }
+            }
         }
     }
     
@@ -638,5 +647,12 @@ class SudokuGame {
 
 // 初始化游戏
 document.addEventListener('DOMContentLoaded', () => {
-    new SudokuGame();
+    // 初始化语言管理器
+    languageManager = new LanguageManager();
+    
+    // 初始化游戏
+    const game = new SudokuGame();
+    
+    // 将游戏实例绑定到全局，以便语言管理器可以访问
+    window.sudokuGame = game;
 });

@@ -8,10 +8,15 @@
 </head>
 <body>
     <div class="container">
+        <!-- 语言切换按钮 -->
+        <div class="language-switcher">
+            <button id="languageSwitcher" class="btn btn-language">English</button>
+        </div>
+        
         <header>
-            <h1>数独围棋棋盘游戏</h1>
+            <h1 data-i18n="title">数独围棋棋盘游戏</h1>
             <div class="score-display">
-                <span class="score-label">得分:</span>
+                <span class="score-label" data-i18n="score">得分:</span>
                 <span id="score">0</span>
             </div>
         </header>
@@ -22,63 +27,64 @@
             </div>
             
             <div class="legend-panel">
-                <h3>象棋符号</h3>
+                <h3 data-i18n="chessSymbols">象棋符号</h3>
                 <div id="legend"></div>
             </div>
         </div>
 
         <div class="controls">
             <div class="difficulty-section">
-                <h3>难度选择</h3>
+                <h3 data-i18n="difficulty">难度选择</h3>
                 <div class="radio-group">
                     <label>
                         <input type="radio" name="difficulty" value="easy" checked>
-                        <span>简单</span>
+                        <span data-i18n="easy">简单</span>
                     </label>
                     <label>
                         <input type="radio" name="difficulty" value="normal">
-                        <span>普通</span>
+                        <span data-i18n="normal">普通</span>
                     </label>
                     <label>
                         <input type="radio" name="difficulty" value="hard">
-                        <span>困难</span>
+                        <span data-i18n="hard">困难</span>
                     </label>
                 </div>
             </div>
 
             <div class="puzzle-section">
-                <h3>谜题选择</h3>
+                <h3 data-i18n="puzzle">谜题选择</h3>
                 <select id="puzzleSelect">
-                    <option value="0">谜题 1</option>
+                    <option value="0" data-i18n="puzzleNumber">谜题 1</option>
                 </select>
             </div>
 
             <div class="action-buttons">
-                <button id="startBtn" class="btn btn-primary">开始游戏</button>
-                <button id="hintBtn" class="btn btn-secondary">提示</button>
-                <button id="pencilBtn" class="btn btn-secondary">铅笔</button>
-                <button id="eraserBtn" class="btn btn-secondary">橡皮</button>
-                <button id="generateBtn" class="btn btn-secondary">生成新谜题</button>
+                <button id="startBtn" class="btn btn-primary" data-i18n="start">开始游戏</button>
+                <button id="hintBtn" class="btn btn-secondary" data-i18n="hint">提示</button>
+                <button id="pencilBtn" class="btn btn-secondary" data-i18n="pencil">铅笔</button>
+                <button id="eraserBtn" class="btn btn-secondary" data-i18n="eraser">橡皮</button>
+                <button id="generateBtn" class="btn btn-secondary" data-i18n="generate">生成新谜题</button>
             </div>
 
             <div class="theme-section">
-                <button id="chessThemeBtn" class="btn btn-theme">♕ 象棋主题 ♘</button>
+                <button id="chessThemeBtn" class="btn btn-theme" data-i18n="chessTheme">♕ 象棋主题 ♘</button>
             </div>
         </div>
 
         <div class="instructions">
-            <h3>游戏说明</h3>
+            <h3 data-i18n="instructions">游戏说明</h3>
             <ul>
-                <li>点击格子选择位置，然后输入数字1-9</li>
-                <li>使用<strong>提示</strong>按钮获得正确答案</li>
-                <li>使用<strong>铅笔</strong>模式做笔记</li>
-                <li>使用<strong>橡皮</strong>模式清除内容</li>
-                <li>开启<strong>象棋主题</strong>用象棋符号代替数字</li>
-                <li>每填对一个数字得100分，完成行/列/宫得500分</li>
+                <li data-i18n="instruction1">点击格子选择位置，然后输入数字1-9</li>
+                <li data-i18n="instruction2">使用<strong>提示</strong>按钮获得正确答案</li>
+                <li data-i18n="instruction3">使用<strong>铅笔</strong>模式做笔记</li>
+                <li data-i18n="instruction4">使用<strong>橡皮</strong>模式清除内容</li>
+                <li data-i18n="instruction5">开启<strong>象棋主题</strong>用象棋符号代替数字</li>
+                <li data-i18n="instruction6">每填对一个数字得100分，完成行/列/宫得500分</li>
             </ul>
         </div>
     </div>
 
+    <script src="languages.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
