@@ -40,6 +40,7 @@
                 <h1 data-i18n="title">数独</h1>
                 <div class="score-display">
                     <span class="score-label" data-i18n="score">得分:</span>
+                    <span>★</span>
                     <span id="score">0</span>
                 </div>
             </div>
@@ -54,6 +55,22 @@
             
             <div class="game-board">
                 <canvas id="sudokuCanvas" width="720" height="720"></canvas>
+                
+                <!-- 小键盘 -->
+                <div id="numberPad" class="number-pad">
+                    <div class="number-pad-header">
+                        <div class="drag-handle" id="numberPadDragHandle">⋮⋮</div>
+                        <button id="closeNumberPad" class="close-pad-btn">&times;</button>
+                    </div>
+                    <div class="number-pad-grid" id="numberPadGrid">
+                        <!-- 数字按钮将通过JavaScript动态生成 -->
+                    </div>
+                    <div class="number-pad-actions">
+                        <button id="hintNumberPad" class="pad-action-btn hint-btn" data-i18n="hint">提示</button>
+                        <button id="pencilNumberPad" class="pad-action-btn pencil-btn" data-i18n="pencil">铅笔</button>
+                        <button id="eraserNumberPad" class="pad-action-btn eraser-btn" data-i18n="eraser">橡皮</button>
+                    </div>
+                </div>
             </div>
             
             <div class="legend-panel">

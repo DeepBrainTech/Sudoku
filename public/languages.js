@@ -61,7 +61,8 @@ const languages = {
         // 语言切换
         language: "语言",
         chinese: "中文",
-        english: "English"
+        english: "English",
+        
     },
     
     en: {
@@ -124,7 +125,8 @@ const languages = {
         // Language switching
         language: "Language",
         chinese: "中文",
-        english: "English"
+        english: "English",
+        
     }
 };
 
@@ -220,18 +222,35 @@ class LanguageManager {
     }
     
     getChessSymbolAndColor(num) {
-        const mapping = {
-            1: ['♖', '#1976d2'],  // Blue rook
-            2: ['♘', '#1976d2'],  // Blue knight
-            3: ['♗', '#1976d2'],  // Blue bishop
-            4: ['♕', '#222'],     // Dark queen
-            5: ['♔', '#222'],     // Dark king
-            6: ['♙', '#222'],     // Dark pawn
-            7: ['♞', '#d32f2f'],  // Red knight
-            8: ['♜', '#d32f2f'],  // Red rook
-            9: ['♝', '#d32f2f'],  // Red bishop
-        };
-        return mapping[num] || [num.toString(), '#222'];
+        // 获取当前棋盘大小，如果没有游戏实例则默认为9
+        const boardSize = window.sudokuGame ? window.sudokuGame.SIZE : 9;
+        
+        if (boardSize === 6) {
+            // 6x6数独的映射关系
+            const mapping6x6 = {
+                1: ['♖', '#1976d2'],  // Blue rook
+                2: ['♘', '#1976d2'],  // Blue knight
+                3: ['♗', '#1976d2'],  // Blue bishop
+                4: ['♕', '#222'],     // Dark queen
+                5: ['♔', '#222'],     // Dark king
+                6: ['♙', '#222'],     // Dark pawn
+            };
+            return mapping6x6[num] || [num.toString(), '#222'];
+        } else {
+            // 9x9数独的映射关系
+            const mapping9x9 = {
+                1: ['♖', '#1976d2'],  // Blue rook
+                2: ['♘', '#1976d2'],  // Blue knight
+                3: ['♗', '#1976d2'],  // Blue bishop
+                4: ['♕', '#222'],     // Dark queen
+                5: ['♔', '#222'],     // Dark king
+                6: ['♝', '#d32f2f'],  // Red bishop
+                7: ['♞', '#d32f2f'],  // Red knight
+                8: ['♜', '#d32f2f'],  // Red rook
+                9: ['♙', '#222'],     // Dark pawn
+            };
+            return mapping9x9[num] || [num.toString(), '#222'];
+        }
     }
     
     setupLanguageSwitcher() {
@@ -260,6 +279,22 @@ class LanguageManager {
         
         // 更新象棋图例
         this.updateChessLegend();
+        
+        // 更新小键盘文本
+        this.updateNumberPadTexts();
+    }
+    
+    updateNumberPadTexts() {
+
+        
+        // 更新小键盘按钮文本
+        const hintBtn = document.getElementById('hintNumberPad');
+        const pencilBtn = document.getElementById('pencilNumberPad');
+        const eraserBtn = document.getElementById('eraserNumberPad');
+        
+        if (hintBtn) hintBtn.textContent = this.getText('hint');
+        if (pencilBtn) pencilBtn.textContent = this.getText('pencil');
+        if (eraserBtn) eraserBtn.textContent = this.getText('eraser');
     }
 }
 
