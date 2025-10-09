@@ -52,6 +52,14 @@ class SudokuGame {
         this.SIZE = parseInt(size);
         this.cell = (this.side - 2 * this.margin) / this.SIZE;
         
+        // 清空当前棋盘和游戏状态
+        this.board = null;
+        this.puzzle = null;
+        this.solution = null;
+        this.selected = null;
+        this.score = 0;
+        this.gameStartTime = null;
+        
         // 重新初始化铅笔标记
         this.pencilMarks = Array(this.SIZE).fill().map(() => Array(this.SIZE).fill().map(() => new Set()));
         
