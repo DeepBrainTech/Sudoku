@@ -437,13 +437,43 @@ class SudokuGame {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        if (x < this.margin || x > this.side - this.margin || 
-            y < this.margin || y > this.side - this.margin) {
-            return;
-        }
+        // 检查是否是chess board模式
+        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
+        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
         
-        const r = Math.floor((y - this.margin) / this.cell);
-        const c = Math.floor((x - this.margin) / this.cell);
+        let r, c;
+        
+        if (isChessBoard) {
+            // chess board模式：检测交叉点
+            const chessSize = 8;
+            const chessCell = (this.side - 2 * this.margin) / chessSize;
+            
+            if (x < this.margin || x > this.margin + chessSize * chessCell || 
+                y < this.margin || y > this.margin + chessSize * chessCell) {
+                return;
+            }
+            
+            // 计算最接近的交叉点
+            const gridX = Math.round((x - this.margin) / chessCell);
+            const gridY = Math.round((y - this.margin) / chessCell);
+            
+            // 检查是否在有效范围内
+            if (gridX < 0 || gridX > chessSize || gridY < 0 || gridY > chessSize) {
+                return;
+            }
+            
+            r = gridY;
+            c = gridX;
+        } else {
+            // 普通模式：检测方格
+            if (x < this.margin || x > this.side - this.margin || 
+                y < this.margin || y > this.side - this.margin) {
+                return;
+            }
+            
+            r = Math.floor((y - this.margin) / this.cell);
+            c = Math.floor((x - this.margin) / this.cell);
+        }
         
         if (this.eraserMode) {
             if (this.pencilMarks[r][c].size > 0) {
@@ -466,7 +496,13 @@ class SudokuGame {
                 return;
             }
         
-        this.selected = (this.selected && this.selected[0] === r && this.selected[1] === c) ? null : [r, c];
+        // 在工具模式下，点击同一个格子不取消选中，保持高亮
+        if (this.pencilMode || this.eraserMode || this.hintMode) {
+            this.selected = [r, c];
+        } else {
+            // 默认模式下，点击同一个格子可以取消选中
+            this.selected = (this.selected && this.selected[0] === r && this.selected[1] === c) ? null : [r, c];
+        }
         
         // 先绘制棋盘，确保高亮效果显示
         this.drawGrid();
@@ -485,8 +521,38 @@ class SudokuGame {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        const r = Math.floor((y - this.margin) / this.cell);
-        const c = Math.floor((x - this.margin) / this.cell);
+        // 检查是否是chess board模式
+        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
+        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        
+        let r, c;
+        
+        if (isChessBoard) {
+            // chess board模式：检测交叉点
+            const chessSize = 8;
+            const chessCell = (this.side - 2 * this.margin) / chessSize;
+            
+            if (x >= this.margin && x <= this.margin + chessSize * chessCell && 
+                y >= this.margin && y <= this.margin + chessSize * chessCell) {
+                const gridX = Math.round((x - this.margin) / chessCell);
+                const gridY = Math.round((y - this.margin) / chessCell);
+                
+                if (gridX >= 0 && gridX <= chessSize && gridY >= 0 && gridY <= chessSize) {
+                    r = gridY;
+                    c = gridX;
+                } else {
+                    r = -1;
+                    c = -1;
+                }
+            } else {
+                r = -1;
+                c = -1;
+            }
+        } else {
+            // 普通模式：检测方格
+            r = Math.floor((y - this.margin) / this.cell);
+            c = Math.floor((x - this.margin) / this.cell);
+        }
         
         this.drawGrid();
         if (r >= 0 && r < this.SIZE && c >= 0 && c < this.SIZE) {
@@ -552,6 +618,8 @@ class SudokuGame {
                 }
                 this.board[r][c] = val;
                 this.pencilMarks[r][c].clear();
+                // 清除选中状态，避免高亮持续显示
+                this.selected = null;
                 this.drawGrid();
                 
                 let bonus = false;
@@ -712,6 +780,11 @@ class SudokuGame {
     
     toggleHintMode() {
         this.hintMode = !this.hintMode;
+        if (this.hintMode) {
+            // 启用提示模式时，关闭其他模式
+            this.pencilMode = false;
+            this.eraserMode = false;
+        }
         this.updateButtonStates();
         this.updateCursor();
     }
@@ -719,7 +792,9 @@ class SudokuGame {
     togglePencilMode() {
         this.pencilMode = !this.pencilMode;
         if (this.pencilMode) {
+            // 启用铅笔模式时，关闭其他模式
             this.eraserMode = false;
+            this.hintMode = false;
         }
         this.updateButtonStates();
         this.updateCursor();
@@ -728,7 +803,9 @@ class SudokuGame {
     toggleEraserMode() {
         this.eraserMode = !this.eraserMode;
         if (this.eraserMode) {
+            // 启用橡皮模式时，关闭其他模式
             this.pencilMode = false;
+            this.hintMode = false;
         }
         this.updateButtonStates();
         this.updateCursor();
@@ -752,11 +829,14 @@ class SudokuGame {
         if (this.hintMode) {
             this.canvas.style.cursor = 'help';
         } else if (this.pencilMode) {
+            // 铅笔模式：使用文本光标，表示可以输入/标记
             this.canvas.style.cursor = 'text';
         } else if (this.eraserMode) {
-            this.canvas.style.cursor = 'grab';
-        } else {
+            // 橡皮模式：使用十字光标，表示可以擦除
             this.canvas.style.cursor = 'crosshair';
+        } else {
+            // 默认模式：使用指针光标
+            this.canvas.style.cursor = 'pointer';
         }
     }
     
@@ -805,7 +885,13 @@ class SudokuGame {
         
         // 根据棋盘大小绘制不同的网格线
         if (this.SIZE === 9) {
-            this.draw9x9Grid(boardEnd);
+            // 检查是否是chess board选项
+            const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
+            if (chessBoardRadio && chessBoardRadio.checked) {
+                this.draw9x9ChessGrid(boardEnd);
+            } else {
+                this.draw9x9Grid(boardEnd);
+            }
         } else if (this.SIZE === 6) {
             this.draw6x6Grid(boardEnd);
         }
@@ -895,10 +981,116 @@ class SudokuGame {
         }
     }
     
+    draw9x9ChessGrid(boardEnd) {
+        // 9x9数独：chess board样式 - 2x2小方格组加粗
+        // 只需要输入2x2方格的左上角坐标，自动加粗整个2x2方格
+        const highlightSquares = [
+            // 示例：输入2x2方格的左上角坐标
+                {row: 0, col: 0},
+                {row: 0, col: 3},
+                {row: 0, col: 6},
+                {row: 3, col: 0},
+                {row: 3, col: 3},
+                {row: 3, col: 6},
+                {row: 6, col: 0},
+                {row: 6, col: 3},
+                {row: 6, col: 6},
+
+        ];
+        
+        // 计算8x8棋盘的尺寸
+        const chessSize = 8;
+        const chessCell = (this.side - 2 * this.margin) / chessSize;
+        const chessBoardEnd = this.margin + chessSize * chessCell;
+        
+        // 先绘制所有普通线条 - 7条线形成8个格子
+        for (let i = 1; i < chessSize; i++) {
+            const pos = this.margin + i * chessCell;
+            
+            // 绘制水平线
+            this.ctx.strokeStyle = '#8b5c2a';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.margin, pos);
+            this.ctx.lineTo(chessBoardEnd, pos);
+            this.ctx.stroke();
+            
+            // 绘制垂直线
+            this.ctx.strokeStyle = '#8b5c2a';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos, this.margin);
+            this.ctx.lineTo(pos, chessBoardEnd);
+            this.ctx.stroke();
+        }
+        
+        // 绘制边框线
+        this.ctx.strokeStyle = '#8b5c2a';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.rect(this.margin, this.margin, chessSize * chessCell, chessSize * chessCell);
+        this.ctx.stroke();
+        
+        // 然后为每个2x2方格绘制加粗边框
+        highlightSquares.forEach(square => {
+            const {row, col} = square;
+            
+            // 计算2x2方格的像素坐标
+            const startX = this.margin + col * chessCell;
+            const endX = this.margin + (col + 2) * chessCell;
+            const startY = this.margin + row * chessCell;
+            const endY = this.margin + (row + 2) * chessCell;
+            
+            // 绘制2x2方格的加粗边框
+            this.ctx.strokeStyle = '#d2691e';
+            this.ctx.lineWidth = 6;
+            
+            // 上边
+            this.ctx.beginPath();
+            this.ctx.moveTo(startX, startY);
+            this.ctx.lineTo(endX, startY);
+            this.ctx.stroke();
+            
+            // 下边
+            this.ctx.beginPath();
+            this.ctx.moveTo(startX, endY);
+            this.ctx.lineTo(endX, endY);
+            this.ctx.stroke();
+            
+            // 左边
+            this.ctx.beginPath();
+            this.ctx.moveTo(startX, startY);
+            this.ctx.lineTo(startX, endY);
+            this.ctx.stroke();
+            
+            // 右边
+            this.ctx.beginPath();
+            this.ctx.moveTo(endX, startY);
+            this.ctx.lineTo(endX, endY);
+            this.ctx.stroke();
+        });
+    }
+    
     drawCircle(r, c, num, fixed = false) {
-        const x = this.margin + c * this.cell + this.cell / 2;
-        const y = this.margin + r * this.cell + this.cell / 2;
-        const radius = this.cell * 0.42;
+        // 检查是否是chess board模式
+        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
+        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        
+        let x, y, radius;
+        
+        if (isChessBoard) {
+            // chess board模式：绘制在交叉点上
+            const chessSize = 8;
+            const chessCell = (this.side - 2 * this.margin) / chessSize;
+            x = this.margin + c * chessCell;
+            y = this.margin + r * chessCell;
+            radius = chessCell * 0.4; // 稍微小一点，适合交叉点
+        } else {
+            // 普通模式：绘制在方格中心
+            x = this.margin + c * this.cell + this.cell / 2;
+            y = this.margin + r * this.cell + this.cell / 2;
+            radius = this.cell * 0.42;
+        }
         
         // 如果不是麻将主题，绘制圆圈
         if (!this.mahjongTheme) {
@@ -1219,24 +1411,80 @@ class SudokuGame {
     }
     
     highlightIntersection(r, c) {
-        const x1 = this.margin + c * this.cell;
-        const y1 = this.margin + r * this.cell;
-        const x2 = x1 + this.cell;
-        const y2 = y1 + this.cell;
+        // 检查是否是chess board模式
+        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
+        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
         
-        this.ctx.strokeStyle = '#1976d2';
-        this.ctx.lineWidth = 4;
-        this.ctx.fillStyle = '#bbdefb';
-        this.ctx.fillRect(x1 + 2, y1 + 2, this.cell - 4, this.cell - 4);
-        this.ctx.strokeRect(x1 + 2, y1 + 2, this.cell - 4, this.cell - 4);
+        if (isChessBoard) {
+            // chess board模式：高亮交叉点
+            const chessSize = 8;
+            const chessCell = (this.side - 2 * this.margin) / chessSize;
+            const x = this.margin + c * chessCell;
+            const y = this.margin + r * chessCell;
+            const radius = chessCell * 0.4; // 交叉点高亮圆圈半径
+            
+            // 绘制交叉点高亮圆圈
+            this.ctx.fillStyle = 'rgba(187, 222, 251, 0.3)';
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            this.ctx.fill();
+            
+            // 绘制交叉点边框
+            this.ctx.strokeStyle = '#1976d2';
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            this.ctx.stroke();
+            
+            // 添加内边框效果
+            this.ctx.strokeStyle = 'rgba(25, 118, 210, 0.5)';
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, radius - 2, 0, 2 * Math.PI);
+            this.ctx.stroke();
+        } else {
+            // 普通模式：高亮方格
+            const x1 = this.margin + c * this.cell;
+            const y1 = this.margin + r * this.cell;
+            
+            // 绘制半透明背景，不遮挡数字
+            this.ctx.fillStyle = 'rgba(187, 222, 251, 0.3)'; // 更透明的蓝色背景
+            this.ctx.fillRect(x1 + 2, y1 + 2, this.cell - 4, this.cell - 4);
+            
+            // 绘制边框高亮
+            this.ctx.strokeStyle = '#1976d2';
+            this.ctx.lineWidth = 3;
+            this.ctx.strokeRect(x1 + 2, y1 + 2, this.cell - 4, this.cell - 4);
+            
+            // 添加内边框效果，让高亮更明显但不遮挡内容
+            this.ctx.strokeStyle = 'rgba(25, 118, 210, 0.5)';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(x1 + 4, y1 + 4, this.cell - 8, this.cell - 8);
+        }
     }
     
     flashCell(r, c) {
-        const x1 = this.margin + c * this.cell;
-        const y1 = this.margin + r * this.cell;
-        const centerX = x1 + this.cell / 2;
-        const centerY = y1 + this.cell / 2;
-        const radius = this.cell / 2 - 6;
+        // 检查是否是chess board模式
+        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
+        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        
+        let centerX, centerY, radius;
+        
+        if (isChessBoard) {
+            // chess board模式：在交叉点闪烁
+            const chessSize = 8;
+            const chessCell = (this.side - 2 * this.margin) / chessSize;
+            centerX = this.margin + c * chessCell;
+            centerY = this.margin + r * chessCell;
+            radius = chessCell * 0.3;
+        } else {
+            // 普通模式：在方格中心闪烁
+            const x1 = this.margin + c * this.cell;
+            const y1 = this.margin + r * this.cell;
+            centerX = x1 + this.cell / 2;
+            centerY = y1 + this.cell / 2;
+            radius = this.cell / 2 - 6;
+        }
         
         // 创建多层闪光效果
         // 外层金色光环
@@ -1781,6 +2029,8 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
             }
             this.board[r][c] = number;
             this.pencilMarks[r][c].clear();
+            // 清除选中状态，避免高亮持续显示
+            this.selected = null;
             this.drawGrid();
             
             let bonus = false;

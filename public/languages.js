@@ -12,6 +12,7 @@ const languages = {
         boardSize: "棋盘大小",
         size9x9: "9x9 (标准)",
         size6x6: "6x6 (简单)",
+        size9x9Chess: "9x9 (chess board)",
         
         // 难度选择
         difficulty: "难度选择",
@@ -77,6 +78,7 @@ const languages = {
         boardSize: "Board Size",
         size9x9: "9x9 (Standard)",
         size6x6: "6x6 (Easy)",
+        size9x9Chess: "9x9 (chess board)",
         
         // Difficulty selection
         difficulty: "Difficulty Selection",
@@ -183,10 +185,10 @@ class LanguageManager {
     updateSpecialElements() {
         // 更新棋盘大小标签
         const boardSizeRadios = document.querySelectorAll('input[name="boardSize"]');
-        const boardSizeLabels = ['size9x9', 'size6x6'];
+        const boardSizeLabels = ['size9x9', 'size6x6', 'size9x9Chess'];
         boardSizeRadios.forEach((radio, index) => {
             const label = radio.nextElementSibling;
-            if (label) {
+            if (label && boardSizeLabels[index]) {
                 label.textContent = this.getText(boardSizeLabels[index]);
             }
         });
