@@ -402,6 +402,7 @@ class SudokuGame {
         document.getElementById('hintBtn').addEventListener('click', () => this.toggleHintMode());
         document.getElementById('pencilBtn').addEventListener('click', () => this.togglePencilMode());
         document.getElementById('eraserBtn').addEventListener('click', () => this.toggleEraserMode());
+        document.getElementById('printBtn').addEventListener('click', () => this.printBoard());
         document.getElementById('generateBtn').addEventListener('click', () => this.generateMorePuzzles());
         document.getElementById('themeSelect').addEventListener('change', (e) => this.changeTheme(e.target.value));
         
@@ -809,6 +810,195 @@ class SudokuGame {
         }
         this.updateButtonStates();
         this.updateCursor();
+    }
+    
+    printBoard() {
+        if (!this.board) {
+            const message = this.languageManager ? 
+                this.languageManager.getText('noPuzzleLoaded') || '请先开始一个游戏！' : 
+                '请先开始一个游戏！';
+            alert(message);
+            return;
+        }
+        
+        // 创建打印窗口
+        const printWindow = window.open('', '_blank', 'width=800,height=900');
+        
+        // 构建打印内容
+        let htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>数独棋盘打印</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        @media print {
+            @page {
+                margin: 1.5cm;
+                size: A4 portrait;
+            }
+            html, body {
+                width: 100%;
+                height: auto;
+                overflow: visible;
+            }
+            body {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .sudoku-container {
+            width: 100%;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        .sudoku-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            background: white;
+        }
+        .sudoku-grid td {
+            width: ${this.SIZE === 9 ? '11.11%' : '16.66%'};
+            height: ${this.SIZE === 9 ? '55px' : '70px'};
+            text-align: center;
+            vertical-align: middle;
+            font-size: ${this.SIZE === 9 ? '22px' : '26px'};
+            font-weight: bold;
+            border: 1px solid #999;
+        }
+        .sudoku-grid td.thick-top {
+            border-top: 3px solid #000;
+        }
+        .sudoku-grid td.thick-bottom {
+            border-bottom: 3px solid #000;
+        }
+        .sudoku-grid td.thick-left {
+            border-left: 3px solid #000;
+        }
+        .sudoku-grid td.thick-right {
+            border-right: 3px solid #000;
+        }
+        .sudoku-grid td.fixed {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+        .sudoku-grid td.filled {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .sudoku-grid td.empty {
+            background-color: white;
+        }
+        .no-print {
+            text-align: center;
+            margin-top: 30px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .no-print button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        .no-print button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="sudoku-container">
+        <table class="sudoku-grid">
+`;
+        
+        // 生成表格内容
+        for (let r = 0; r < this.SIZE; r++) {
+            htmlContent += '<tr>';
+            for (let c = 0; c < this.SIZE; c++) {
+                let classes = [];
+                
+                // 添加粗边框类
+                if (this.SIZE === 9) {
+                    // 9x9数独：3x3宫格
+                    if (r % 3 === 0) classes.push('thick-top');
+                    if (r === this.SIZE - 1) classes.push('thick-bottom');
+                    if (c % 3 === 0) classes.push('thick-left');
+                    if (c === this.SIZE - 1) classes.push('thick-right');
+                } else if (this.SIZE === 6) {
+                    // 6x6数独：2x3宫格
+                    if (r % 2 === 0) classes.push('thick-top');
+                    if (r === this.SIZE - 1) classes.push('thick-bottom');
+                    if (c % 3 === 0) classes.push('thick-left');
+                    if (c === this.SIZE - 1) classes.push('thick-right');
+                }
+                
+                // 添加单元格类型类
+                let cellValue = '';
+                if (this.puzzle && this.puzzle[r][c] !== 0) {
+                    classes.push('fixed');
+                    cellValue = this.puzzle[r][c];
+                } else if (this.board[r][c] !== 0) {
+                    classes.push('filled');
+                    cellValue = this.board[r][c];
+                } else {
+                    classes.push('empty');
+                }
+                
+                htmlContent += `<td class="${classes.join(' ')}">${cellValue}</td>`;
+            }
+            htmlContent += '</tr>';
+        }
+        
+        htmlContent += `
+        </table>
+        
+        <div class="no-print">
+            <button onclick="window.print()">打印</button>
+            <button onclick="window.close()">关闭</button>
+        </div>
+    </div>
+</body>
+</html>
+`;
+        
+        // 写入打印窗口
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+        
+        // 等待内容加载完成后自动打开打印对话框
+        printWindow.onload = function() {
+            setTimeout(() => {
+                printWindow.print();
+            }, 250);
+        };
     }
     
     changeTheme(theme) {
