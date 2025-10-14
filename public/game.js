@@ -1048,9 +1048,7 @@ class SudokuGame {
         this.updateCustomThemeButton();
 
         if (this.customTheme) {
-            if (!this.customSymbolsStored) {
-                this.openCustomThemeModal();
-            }
+            this.openCustomThemeModal();
         } else {
             this.closeCustomThemeModal();
         }
