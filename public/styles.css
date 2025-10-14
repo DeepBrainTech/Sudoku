@@ -119,6 +119,13 @@ header {
     flex-wrap: wrap;
 }
 
+.custom-theme-btn {
+    display: none;
+    align-self: flex-start;
+    padding: 6px 12px;
+    font-size: 0.85em;
+}
+
 .header-left .size-option {
     display: flex;
     align-items: center;
@@ -420,6 +427,33 @@ header {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+    .custom-theme-inputs {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 5px;
+    }
+    
+    .custom-theme-row {
+        padding: 10px 12px;
+    }
+    
+    .custom-theme-row label {
+        min-width: 28px;
+        height: 28px;
+        font-size: 1em;
+    }
+    
+    .custom-theme-row input {
+        padding: 8px 12px;
+        font-size: 1em;
+    }
+    
+    .modal-actions .btn {
+        min-width: 100px;
+        padding: 10px 20px;
+        font-size: 0.95em;
+    }
+
     .container {
         padding: 10px;
     }
@@ -538,6 +572,26 @@ header {
 }
 
 @media (max-width: 480px) {
+    .custom-theme-inputs {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .custom-theme-description {
+        font-size: 0.9em;
+        padding: 10px 12px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-actions .btn {
+        width: 100%;
+        min-width: auto;
+    }
+
     .top-controls {
         top: 5px;
         right: 5px;
@@ -695,7 +749,21 @@ header {
 
 .number-pad.show {
     display: block;
+    animation: padFadeIn 0.2s ease-out;
+}
+
+.number-pad.show-centered {
+    display: block;
     animation: padSlideIn 0.3s ease-out;
+}
+
+@keyframes padFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes padSlideIn {
@@ -895,12 +963,12 @@ header {
     padding: 0;
     border-radius: 15px;
     width: 90%;
-    max-width: 600px;
+    max-width: 750px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: modalSlideIn 0.3s ease-out;
+    /* animation: modalSlideIn 0.3s ease-out; */ /* 已取消弹窗打开动画 */
 }
 
-@keyframes modalSlideIn {
+/* @keyframes modalSlideIn {
     from {
         opacity: 0;
         transform: translateY(-50px);
@@ -909,7 +977,7 @@ header {
         opacity: 1;
         transform: translateY(0);
     }
-}
+} */ /* 已取消弹窗打开动画 */
 
 .modal-header {
     background: linear-gradient(135deg, #3498db, #2980b9);
@@ -948,6 +1016,213 @@ header {
 
 .modal-body {
     padding: 25px;
+    overflow-x: hidden;
+}
+
+.custom-theme-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.custom-theme-description {
+    color: #5a6c7d;
+    font-size: 0.95em;
+    line-height: 1.5;
+    margin: 0;
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #e3f2fd, #f0f7ff);
+    border-left: 4px solid #3498db;
+    border-radius: 6px;
+}
+
+.custom-theme-inputs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 5px 0;
+    max-width: 100%;
+}
+
+.custom-theme-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 0;
+}
+
+.custom-theme-row:hover {
+    background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+    border-color: #bbdefb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+}
+
+.custom-theme-row label {
+    font-weight: bold;
+    color: white;
+    min-width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    transition: all 0.3s ease;
+}
+
+.custom-theme-row:hover label {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.custom-theme-row input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #e0e6ed;
+    border-radius: 10px;
+    font-size: 1em;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: white;
+    color: #2c3e50;
+    min-width: 0;
+    width: 100%;
+}
+
+.custom-theme-row input::placeholder {
+    color: #bdc3c7;
+    font-weight: normal;
+}
+
+.custom-theme-row input:hover {
+    border-color: #3498db;
+    background: #f8fbff;
+}
+
+.custom-theme-row input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15), 0 4px 12px rgba(52, 152, 219, 0.2);
+    background: white;
+    transform: scale(1.02);
+}
+
+.custom-theme-row input.input-error {
+    border-color: #e74c3c;
+    background: #ffebee;
+    animation: shake 0.3s ease;
+}
+
+.custom-theme-row input.input-error:focus {
+    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.15), 0 4px 12px rgba(231, 76, 60, 0.2);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.custom-theme-row input.custom-symbol-optional {
+    opacity: 0.7;
+    background: #f5f7fa;
+}
+
+.custom-theme-row input.custom-symbol-optional:focus {
+    opacity: 1;
+    background: white;
+}
+
+.custom-theme-error {
+    color: #e74c3c;
+    font-weight: 600;
+    min-height: 1.4em;
+    margin: -10px 0 0;
+    padding: 10px 15px;
+    background: #ffebee;
+    border-radius: 8px;
+    border-left: 4px solid #e74c3c;
+    display: none;
+}
+
+.custom-theme-error:not(:empty) {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 10px;
+}
+
+.modal-actions .btn {
+    min-width: 120px;
+    padding: 12px 28px;
+    font-size: 1.05em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.modal-actions .btn-secondary {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+}
+
+.modal-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d, #6c7a7b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(149, 165, 166, 0.4);
+}
+
+.modal-actions .btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.modal-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6aa5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+}
+
+.modal-actions .btn:active {
+    transform: translateY(0);
+}
+
+.number-btn-custom {
+    font-size: 1.2em;
+    font-weight: 600;
 }
 
 .modal-body ul {

@@ -26,6 +26,12 @@ class SudokuGame {
         this.eraserMode = false;
         this.chessTheme = false; // 默认为数字主题
         this.mahjongTheme = false; // 默认为非麻将主题
+        this.customTheme = false;
+
+        const customData = this.loadCustomSymbols();
+        this.customSymbols = customData.symbols;
+        this.customSymbolsStored = customData.stored;
+        this.customThemeModalVisible = false;
         
         // 铅笔标记
         this.pencilMarks = Array(this.SIZE).fill().map(() => Array(this.SIZE).fill().map(() => new Set()));
@@ -68,13 +74,17 @@ class SudokuGame {
         this.updatePuzzleSelector();
         this.resetModes();
         
+        if (this.customThemeModalVisible) {
+            this.populateCustomThemeInputs();
+        }
+
         // 强制更新图例，确保iPad上显示正确的映射关系
         this.forceUpdateLegend();
         this.updateNumberPad();
         this.drawGrid();
     }
     
-    // 强制更新图例的方法
+        // 强制更新图例的方法
     forceUpdateLegend() {
         // 清除图例容器
         const legend = document.getElementById('legend');
@@ -84,11 +94,6 @@ class SudokuGame {
         
         // 重新更新图例
         this.updateLegend();
-        
-        // 如果语言管理器存在，也强制更新
-        if (this.languageManager) {
-            this.languageManager.updateChessLegend();
-        }
     }
     
     initializeGame() {
@@ -103,6 +108,7 @@ class SudokuGame {
         this.updateCursor();
         this.drawGrid();
         this.updatePuzzleSelector();
+        this.updateCustomThemeButton();
     }
     
     // 初始化音频
@@ -431,6 +437,38 @@ class SudokuGame {
                 this.hideInstructionsModal();
             }
         });
+
+        const customThemeBtn = document.getElementById('customThemeBtn');
+        if (customThemeBtn) {
+            customThemeBtn.addEventListener('click', () => this.openCustomThemeModal());
+        }
+
+        const customThemeForm = document.getElementById('customThemeForm');
+        if (customThemeForm) {
+            customThemeForm.addEventListener('submit', (e) => this.handleCustomThemeSubmit(e));
+        }
+
+        const cancelCustomTheme = document.getElementById('cancelCustomTheme');
+        if (cancelCustomTheme) {
+            cancelCustomTheme.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.closeCustomThemeModal();
+            });
+        }
+
+        const closeCustomTheme = document.getElementById('closeCustomTheme');
+        if (closeCustomTheme) {
+            closeCustomTheme.addEventListener('click', () => this.closeCustomThemeModal());
+        }
+
+        const customThemeModal = document.getElementById('customThemeModal');
+        if (customThemeModal) {
+            customThemeModal.addEventListener('click', (e) => {
+                if (e.target === customThemeModal) {
+                    this.closeCustomThemeModal();
+                }
+            });
+        }
     }
     
     handleClick(e) {
@@ -438,28 +476,28 @@ class SudokuGame {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        // 检查是否是chess board模式
-        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
-        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        // 检查是否是Go board模式
+        const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
+        const isGoBoard = goBoardRadio && goBoardRadio.checked;
         
         let r, c;
         
-        if (isChessBoard) {
-            // chess board模式：检测交叉点
-            const chessSize = 8;
-            const chessCell = (this.side - 2 * this.margin) / chessSize;
+        if (isGoBoard) {
+            // Go board模式：检测交叉点
+            const goSize = 8;
+            const goCell = (this.side - 2 * this.margin) / goSize;
             
-            if (x < this.margin || x > this.margin + chessSize * chessCell || 
-                y < this.margin || y > this.margin + chessSize * chessCell) {
+            if (x < this.margin || x > this.margin + goSize * goCell || 
+                y < this.margin || y > this.margin + goSize * goCell) {
                 return;
             }
             
             // 计算最接近的交叉点
-            const gridX = Math.round((x - this.margin) / chessCell);
-            const gridY = Math.round((y - this.margin) / chessCell);
+            const gridX = Math.round((x - this.margin) / goCell);
+            const gridY = Math.round((y - this.margin) / goCell);
             
             // 检查是否在有效范围内
-            if (gridX < 0 || gridX > chessSize || gridY < 0 || gridY > chessSize) {
+            if (gridX < 0 || gridX > goSize || gridY < 0 || gridY > goSize) {
                 return;
             }
             
@@ -522,23 +560,23 @@ class SudokuGame {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        // 检查是否是chess board模式
-        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
-        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        // 检查是否是Go board模式
+        const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
+        const isGoBoard = goBoardRadio && goBoardRadio.checked;
         
         let r, c;
         
-        if (isChessBoard) {
-            // chess board模式：检测交叉点
-            const chessSize = 8;
-            const chessCell = (this.side - 2 * this.margin) / chessSize;
+        if (isGoBoard) {
+            // Go board模式：检测交叉点
+            const goSize = 8;
+            const goCell = (this.side - 2 * this.margin) / goSize;
             
-            if (x >= this.margin && x <= this.margin + chessSize * chessCell && 
-                y >= this.margin && y <= this.margin + chessSize * chessCell) {
-                const gridX = Math.round((x - this.margin) / chessCell);
-                const gridY = Math.round((y - this.margin) / chessCell);
+            if (x >= this.margin && x <= this.margin + goSize * goCell && 
+                y >= this.margin && y <= this.margin + goSize * goCell) {
+                const gridX = Math.round((x - this.margin) / goCell);
+                const gridY = Math.round((y - this.margin) / goCell);
                 
-                if (gridX >= 0 && gridX <= chessSize && gridY >= 0 && gridY <= chessSize) {
+                if (gridX >= 0 && gridX <= goSize && gridY >= 0 && gridY <= goSize) {
                     r = gridY;
                     c = gridX;
                 } else {
@@ -1005,10 +1043,23 @@ class SudokuGame {
         if (theme === '') return; // 如果选择的是"Theme"占位符，不做任何操作
         this.chessTheme = (theme === 'chess');
         this.mahjongTheme = (theme === 'mahjong');
+        this.customTheme = (theme === 'custom');
+
+        this.updateCustomThemeButton();
+
+        if (this.customTheme) {
+            if (!this.customSymbolsStored) {
+                this.openCustomThemeModal();
+            }
+        } else {
+            this.closeCustomThemeModal();
+        }
+
         this.forceUpdateLegend();
+        this.updateNumberPad();
         this.drawGrid();
     }
-    
+
     updateButtonStates() {
         document.getElementById('hintBtn').classList.toggle('active', this.hintMode);
         document.getElementById('pencilBtn').classList.toggle('active', this.pencilMode);
@@ -1075,10 +1126,10 @@ class SudokuGame {
         
         // 根据棋盘大小绘制不同的网格线
         if (this.SIZE === 9) {
-            // 检查是否是chess board选项
-            const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
-            if (chessBoardRadio && chessBoardRadio.checked) {
-                this.draw9x9ChessGrid(boardEnd);
+            // 检查是否是Go board选项
+            const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
+            if (goBoardRadio && goBoardRadio.checked) {
+                this.draw9x9GoGrid(boardEnd);
             } else {
                 this.draw9x9Grid(boardEnd);
             }
@@ -1171,8 +1222,8 @@ class SudokuGame {
         }
     }
     
-    draw9x9ChessGrid(boardEnd) {
-        // 9x9数独：chess board样式 - 2x2小方格组加粗
+    draw9x9GoGrid(boardEnd) {
+        // 9x9数独：Go board样式 - 2x2小方格组加粗
         // 只需要输入2x2方格的左上角坐标，自动加粗整个2x2方格
         const highlightSquares = [
             // 示例：输入2x2方格的左上角坐标
@@ -1189,20 +1240,20 @@ class SudokuGame {
         ];
         
         // 计算8x8棋盘的尺寸
-        const chessSize = 8;
-        const chessCell = (this.side - 2 * this.margin) / chessSize;
-        const chessBoardEnd = this.margin + chessSize * chessCell;
+        const goSize = 8;
+        const goCell = (this.side - 2 * this.margin) / goSize;
+        const goBoardEnd = this.margin + goSize * goCell;
         
         // 先绘制所有普通线条 - 7条线形成8个格子
-        for (let i = 1; i < chessSize; i++) {
-            const pos = this.margin + i * chessCell;
+        for (let i = 1; i < goSize; i++) {
+            const pos = this.margin + i * goCell;
             
             // 绘制水平线
             this.ctx.strokeStyle = '#8b5c2a';
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
             this.ctx.moveTo(this.margin, pos);
-            this.ctx.lineTo(chessBoardEnd, pos);
+            this.ctx.lineTo(goBoardEnd, pos);
             this.ctx.stroke();
             
             // 绘制垂直线
@@ -1210,7 +1261,7 @@ class SudokuGame {
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
             this.ctx.moveTo(pos, this.margin);
-            this.ctx.lineTo(pos, chessBoardEnd);
+            this.ctx.lineTo(pos, goBoardEnd);
             this.ctx.stroke();
         }
         
@@ -1218,7 +1269,7 @@ class SudokuGame {
         this.ctx.strokeStyle = '#8b5c2a';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
-        this.ctx.rect(this.margin, this.margin, chessSize * chessCell, chessSize * chessCell);
+        this.ctx.rect(this.margin, this.margin, goSize * goCell, goSize * goCell);
         this.ctx.stroke();
         
         // 然后为每个2x2方格绘制加粗边框
@@ -1226,10 +1277,10 @@ class SudokuGame {
             const {row, col} = square;
             
             // 计算2x2方格的像素坐标
-            const startX = this.margin + col * chessCell;
-            const endX = this.margin + (col + 2) * chessCell;
-            const startY = this.margin + row * chessCell;
-            const endY = this.margin + (row + 2) * chessCell;
+            const startX = this.margin + col * goCell;
+            const endX = this.margin + (col + 2) * goCell;
+            const startY = this.margin + row * goCell;
+            const endY = this.margin + (row + 2) * goCell;
             
             // 绘制2x2方格的加粗边框
             this.ctx.strokeStyle = '#d2691e';
@@ -1262,19 +1313,19 @@ class SudokuGame {
     }
     
     drawCircle(r, c, num, fixed = false) {
-        // 检查是否是chess board模式
-        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
-        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        // 检查是否是Go board模式
+        const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
+        const isGoBoard = goBoardRadio && goBoardRadio.checked;
         
         let x, y, radius;
         
-        if (isChessBoard) {
-            // chess board模式：绘制在交叉点上
-            const chessSize = 8;
-            const chessCell = (this.side - 2 * this.margin) / chessSize;
-            x = this.margin + c * chessCell;
-            y = this.margin + r * chessCell;
-            radius = chessCell * 0.4; // 稍微小一点，适合交叉点
+        if (isGoBoard) {
+            // Go board模式：绘制在交叉点上
+            const goSize = 8;
+            const goCell = (this.side - 2 * this.margin) / goSize;
+            x = this.margin + c * goCell;
+            y = this.margin + r * goCell;
+            radius = goCell * 0.4; // 稍微小一点，适合交叉点
         } else {
             // 普通模式：绘制在方格中心
             x = this.margin + c * this.cell + this.cell / 2;
@@ -1298,15 +1349,15 @@ class SudokuGame {
             const [symbol, color] = this.getChessSymbolAndColor(num);
             this.ctx.fillStyle = color;
             
-            // 检测是否为iPad/移动设备，调整字体渲染
-            const isMobile = this.isMobileDevice();
+            // 检测是否为真正的移动设备（手机/平板），不包括触屏笔记本
+            const isTrueMobile = this.isTrueMobileDevice();
             
             // 根据设备类型设置不同的字体
-            if (isMobile) {
-                // iPad/移动设备：使用Arial字体，但保留回退选项以确保Unicode字符正确显示
+            if (isTrueMobile) {
+                // 手机/平板设备：使用Arial字体，但保留回退选项以确保Unicode字符正确显示
                 this.ctx.font = `bold ${Math.max(32, this.cell * 0.8)}px "Arial", "Helvetica", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
             } else {
-                // 桌面设备：使用原有字体设置
+                // 桌面设备/触屏笔记本：使用原有字体设置
                 this.ctx.font = `bold ${Math.max(26, this.cell * 0.7)}px Arial`;
             }
             
@@ -1315,8 +1366,8 @@ class SudokuGame {
             
             // 为不同的象棋符号提供精确的垂直偏移调整
             let offsetY = y;
-            if (isMobile) {
-                // iPad/移动设备上的调整
+            if (isTrueMobile) {
+                // 手机/平板设备上的调整
                 switch(symbol) {
                     case '♖': // 车
                     case '♜':
@@ -1343,7 +1394,7 @@ class SudokuGame {
                         offsetY = y;
                 }
             } else {
-                // 桌面设备的调整
+                // 桌面设备/触屏笔记本的调整
                 switch(symbol) {
                     case '♖': // 车 - 需要稍微向下偏移
                     case '♜':
@@ -1377,15 +1428,15 @@ class SudokuGame {
             const [symbol, color] = this.getMahjongSymbolAndColor(num);
             this.ctx.fillStyle = color;
             
-            // 检测是否为iPad/移动设备，调整字体渲染
-            const isMobile = this.isMobileDevice();
+            // 检测是否为真正的移动设备（手机/平板），不包括触屏笔记本
+            const isTrueMobile = this.isTrueMobileDevice();
             
             // 根据设备类型设置不同的字体
-            if (isMobile) {
-                // iPad/移动设备：使用更大的字体和更好的字体族
+            if (isTrueMobile) {
+                // 手机/平板设备：使用更大的字体和更好的字体族
                 this.ctx.font = `bold ${Math.max(40, this.cell * 1.0)}px "Arial"`;
             } else {
-                // 桌面设备：使用原有字体设置
+                // 桌面设备/触屏笔记本：使用原有字体设置
                 this.ctx.font = `bold ${Math.max(40, this.cell * 1.0)}px Arial`;
             }
             
@@ -1394,14 +1445,24 @@ class SudokuGame {
             
             // 根据设备类型调整位置
             let offsetY = y;
-            if (isMobile) {
-                // iPad/移动设备：调整位置以适应字体渲染差异
+            if (isTrueMobile) {
+                // 手机/平板设备：调整位置以适应字体渲染差异
                 offsetY = y + this.cell * -0.15; // 轻微向下调整
             } else {
-                // 桌面设备：使用原有位置
+                // 桌面设备/触屏笔记本：使用原有位置
                 offsetY = y + this.cell * 0.08;
             }
             
+            this.ctx.fillText(symbol, x, offsetY);
+        } else if (this.customTheme) {
+            const symbol = this.getCustomSymbol(num);
+            const characterCount = Math.max(1, Array.from(symbol).length);
+            const fontScale = characterCount === 1 ? 0.5 : characterCount === 2 ? 0.42 : 0.34;
+            this.ctx.fillStyle = fixed ? '#222' : '#1976d2';
+            this.ctx.font = `bold ${Math.max(20, this.cell * fontScale)}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            const offsetY = y + this.cell * 0.01;
             this.ctx.fillText(symbol, x, offsetY);
         } else {
             this.ctx.fillStyle = fixed ? '#222' : '#1976d2';
@@ -1541,33 +1602,40 @@ class SudokuGame {
     }
     
     updateLegend() {
-        // 如果语言管理器存在，使用其方法更新图例
         if (this.languageManager) {
             if (this.chessTheme) {
                 this.languageManager.updateChessLegend();
             } else if (this.mahjongTheme) {
                 this.updateMahjongLegend();
+            } else if (this.customTheme) {
+                this.updateCustomLegend();
             } else {
-                this.languageManager.updateChessLegend(); // 默认使用数字
+                this.languageManager.updateChessLegend();
             }
         } else {
-            // 备用方法
             const legend = document.getElementById('legend');
             if (legend) {
                 legend.innerHTML = '';
                 for (let i = 1; i <= this.SIZE; i++) {
-                    let symbol, color;
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    const labelSpan = document.createElement('span');
+                    labelSpan.textContent = `${i} -> `;
+                    const symbolSpan = document.createElement('span');
+                    let symbol = i.toString();
+                    let color = '#222';
                     if (this.chessTheme) {
                         [symbol, color] = this.getChessSymbolAndColor(i);
                     } else if (this.mahjongTheme) {
                         [symbol, color] = this.getMahjongSymbolAndColor(i);
-                    } else {
-                        symbol = i.toString();
-                        color = '#222';
+                    } else if (this.customTheme) {
+                        symbol = this.getCustomSymbol(i);
+                        color = '#1976d2';
                     }
-                    const item = document.createElement('div');
-                    item.className = 'legend-item';
-                    item.innerHTML = `${i} → <span style="color: ${color}">${symbol}</span>`;
+                    symbolSpan.style.color = color;
+                    symbolSpan.textContent = symbol;
+                    item.appendChild(labelSpan);
+                    item.appendChild(symbolSpan);
                     legend.appendChild(item);
                 }
             }
@@ -1587,7 +1655,214 @@ class SudokuGame {
             }
         }
     }
-    
+
+    updateCustomLegend() {
+        const legend = document.getElementById('legend');
+        if (!legend) return;
+        legend.innerHTML = '';
+        for (let i = 1; i <= this.SIZE; i++) {
+            const item = document.createElement('div');
+            item.className = 'legend-item';
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = `${i} -> `;
+            const symbolSpan = document.createElement('span');
+            symbolSpan.style.color = '#1976d2';
+            symbolSpan.textContent = this.getCustomSymbol(i);
+            item.appendChild(labelSpan);
+            item.appendChild(symbolSpan);
+            legend.appendChild(item);
+        }
+    }
+
+    updateCustomThemeButton() {
+        const customButton = document.getElementById('customThemeBtn');
+        if (!customButton) return;
+        customButton.style.display = this.customTheme ? 'inline-flex' : 'none';
+    }
+
+    openCustomThemeModal() {
+        if (this.customThemeModalVisible) return;
+        const modal = document.getElementById('customThemeModal');
+        if (!modal) return;
+        this.populateCustomThemeInputs();
+        this.clearCustomThemeError();
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        this.customThemeModalVisible = true;
+        const firstInput = modal.querySelector('input[data-number]');
+        if (firstInput) {
+            requestAnimationFrame(() => firstInput.focus());
+        }
+    }
+
+    closeCustomThemeModal() {
+        if (!this.customThemeModalVisible) return;
+        const modal = document.getElementById('customThemeModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        document.body.style.overflow = 'auto';
+        this.customThemeModalVisible = false;
+        this.clearCustomThemeError();
+    }
+
+    populateCustomThemeInputs() {
+        const container = document.getElementById('customThemeInputs');
+        if (!container) return;
+        container.innerHTML = '';
+        const maxSymbols = 9;
+        for (let i = 1; i <= maxSymbols; i++) {
+            const row = document.createElement('div');
+            row.className = 'custom-theme-row';
+
+            const label = document.createElement('label');
+            label.setAttribute('for', `customSymbol${i}`);
+            label.textContent = i.toString();
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = `customSymbol${i}`;
+            input.name = `customSymbol${i}`;
+            input.dataset.number = i.toString();
+            input.maxLength = 3;
+            input.autocomplete = 'off';
+            input.value = this.getCustomSymbol(i);
+            input.placeholder = i.toString();
+            if (i > this.SIZE) {
+                input.classList.add('custom-symbol-optional');
+            }
+
+            row.appendChild(label);
+            row.appendChild(input);
+            container.appendChild(row);
+        }
+    }
+
+    clearCustomThemeError() {
+        const error = document.getElementById('customThemeError');
+        if (error) {
+            error.textContent = '';
+        }
+        const inputs = document.querySelectorAll('#customThemeInputs input');
+        inputs.forEach(input => input.classList.remove('input-error'));
+    }
+
+    showCustomThemeError(message, inputs = []) {
+        const error = document.getElementById('customThemeError');
+        if (error) {
+            error.textContent = message;
+        }
+        inputs.forEach(input => {
+            if (input) {
+                input.classList.add('input-error');
+            }
+        });
+    }
+
+    handleCustomThemeSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const inputs = Array.from(form.querySelectorAll('input[data-number]'));
+        if (inputs.length === 0) {
+            this.closeCustomThemeModal();
+            return;
+        }
+
+        this.clearCustomThemeError();
+
+        const nextSymbols = { ...this.customSymbols };
+        const seen = new Map();
+        const duplicateInputs = new Set();
+
+        inputs.forEach((input) => {
+            const valueNumber = parseInt(input.dataset.number, 10);
+            if (Number.isNaN(valueNumber)) {
+                return;
+            }
+            let value = input.value.trim();
+            if (value === '') {
+                value = valueNumber.toString();
+            }
+            input.value = value;
+            nextSymbols[valueNumber] = value;
+            if (valueNumber <= this.SIZE) {
+                if (seen.has(value)) {
+                    duplicateInputs.add(input);
+                    duplicateInputs.add(seen.get(value));
+                } else {
+                    seen.set(value, input);
+                }
+            }
+        });
+
+        if (duplicateInputs.size > 0) {
+            const message = this.languageManager ? this.languageManager.getText('customThemeDuplicateError') : 'Symbols must be unique for each number.';
+            this.showCustomThemeError(message, Array.from(duplicateInputs));
+            const firstDuplicate = duplicateInputs.values().next().value;
+            if (firstDuplicate) {
+                firstDuplicate.focus();
+            }
+            return;
+        }
+
+        this.customSymbols = this.normalizeCustomSymbols(nextSymbols);
+        this.saveCustomSymbols();
+        this.closeCustomThemeModal();
+        this.forceUpdateLegend();
+        this.updateNumberPad();
+        this.drawGrid();
+    }
+
+    createDefaultCustomSymbols() {
+        const symbols = {};
+        for (let i = 1; i <= 9; i++) {
+            symbols[i] = i.toString();
+        }
+        return symbols;
+    }
+
+    normalizeCustomSymbols(symbols) {
+        const normalized = {};
+        const source = symbols && typeof symbols === 'object' ? symbols : {};
+        for (let i = 1; i <= 9; i++) {
+            const raw = source[i] ?? source[i.toString()];
+            if (typeof raw === 'string' && raw.trim() !== '') {
+                normalized[i] = raw.trim();
+            } else if (typeof raw === 'number') {
+                normalized[i] = raw.toString();
+            } else {
+                normalized[i] = i.toString();
+            }
+        }
+        return normalized;
+    }
+
+    loadCustomSymbols() {
+        try {
+            const stored = localStorage.getItem('sudoku-custom-symbols');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                return { symbols: this.normalizeCustomSymbols(parsed), stored: true };
+            }
+        } catch (error) {
+            console.warn('Failed to load custom symbols', error);
+        }
+        return { symbols: this.createDefaultCustomSymbols(), stored: false };
+    }
+
+    saveCustomSymbols() {
+        try {
+            localStorage.setItem('sudoku-custom-symbols', JSON.stringify(this.customSymbols));
+            this.customSymbolsStored = true;
+        } catch (error) {
+            console.warn('Failed to save custom symbols', error);
+        }
+    }
+
+    getCustomSymbol(num) {
+        return this.customSymbols[num] || num.toString();
+    }
+
     showInstructionsModal() {
         const modal = document.getElementById('instructionsModal');
         modal.style.display = 'block';
@@ -1601,17 +1876,17 @@ class SudokuGame {
     }
     
     highlightIntersection(r, c) {
-        // 检查是否是chess board模式
-        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
-        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        // 检查是否是Go board模式
+        const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
+        const isGoBoard = goBoardRadio && goBoardRadio.checked;
         
-        if (isChessBoard) {
-            // chess board模式：高亮交叉点
-            const chessSize = 8;
-            const chessCell = (this.side - 2 * this.margin) / chessSize;
-            const x = this.margin + c * chessCell;
-            const y = this.margin + r * chessCell;
-            const radius = chessCell * 0.4; // 交叉点高亮圆圈半径
+        if (isGoBoard) {
+            // Go board模式：高亮交叉点
+            const goSize = 8;
+            const goCell = (this.side - 2 * this.margin) / goSize;
+            const x = this.margin + c * goCell;
+            const y = this.margin + r * goCell;
+            const radius = goCell * 0.4; // 交叉点高亮圆圈半径
             
             // 绘制交叉点高亮圆圈
             this.ctx.fillStyle = 'rgba(187, 222, 251, 0.3)';
@@ -1654,19 +1929,19 @@ class SudokuGame {
     }
     
     flashCell(r, c) {
-        // 检查是否是chess board模式
-        const chessBoardRadio = document.querySelector('input[name="boardSize"][data-chess-board="true"]');
-        const isChessBoard = chessBoardRadio && chessBoardRadio.checked;
+        // 检查是否是Go board模式
+        const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
+        const isGoBoard = goBoardRadio && goBoardRadio.checked;
         
         let centerX, centerY, radius;
         
-        if (isChessBoard) {
-            // chess board模式：在交叉点闪烁
-            const chessSize = 8;
-            const chessCell = (this.side - 2 * this.margin) / chessSize;
-            centerX = this.margin + c * chessCell;
-            centerY = this.margin + r * chessCell;
-            radius = chessCell * 0.3;
+        if (isGoBoard) {
+            // Go board模式：在交叉点闪烁
+            const goSize = 8;
+            const goCell = (this.side - 2 * this.margin) / goSize;
+            centerX = this.margin + c * goCell;
+            centerY = this.margin + r * goCell;
+            radius = goCell * 0.3;
         } else {
             // 普通模式：在方格中心闪烁
             const x1 = this.margin + c * this.cell;
@@ -2024,18 +2299,62 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
                (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
     }
     
+    // 区分真正的移动设备（手机/平板）和触屏笔记本
+    isTrueMobileDevice() {
+        // 首先检查是否是移动设备的 UserAgent
+        const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (mobileUA) {
+            return true;
+        }
+        
+        // 如果不是移动设备 UserAgent，但支持触摸
+        if (navigator.maxTouchPoints && navigator.maxTouchPoints > 1) {
+            // 检查屏幕尺寸，触屏笔记本通常屏幕较大
+            // 手机/平板通常屏幕宽度小于 1024px
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+            const maxDimension = Math.max(screenWidth, screenHeight);
+            
+            // 如果屏幕最大尺寸小于 1024px，很可能是平板
+            if (maxDimension < 1024) {
+                return true;
+            }
+            
+            // 检查设备是否支持鼠标指针（通过 matchMedia）
+            // 触屏笔记本通常主要输入设备是鼠标（fine pointer）
+            // 手机/平板主要输入设备是触摸（coarse pointer）
+            const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+            if (hasCoarsePointer) {
+                return true; // 粗糙指针（触摸），是移动设备
+            }
+            
+            // 否则很可能是触屏笔记本
+            return false;
+        }
+        
+        return false;
+    }
+    
     updateNumberPad() {
         const numberPadGrid = document.getElementById('numberPadGrid');
         if (!numberPadGrid) return;
-        
+
         numberPadGrid.innerHTML = '';
-        
-        // 根据棋盘大小生成数字按钮
+
         for (let i = 1; i <= this.SIZE; i++) {
             const button = document.createElement('button');
-            button.className = 'number-btn';
-            button.textContent = i.toString();
+            button.classList.add('number-btn');
+            if (this.customTheme) {
+                button.classList.add('number-btn-custom');
+            }
+            const display = this.customTheme ? this.getCustomSymbol(i) : i.toString();
+            button.textContent = display;
             button.dataset.number = i.toString();
+            if (this.customTheme) {
+                button.title = `${i}`;
+            } else if (button.title) {
+                button.removeAttribute('title');
+            }
             numberPadGrid.appendChild(button);
         }
     }
@@ -2071,11 +2390,12 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
         // 触摸事件（移动设备）
         document.addEventListener('touchstart', handleNumberButtonClick);
         
-        // 点击事件（桌面设备）
+        // 点击事件（桌面设备和触屏笔记本）
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('number-btn') && !this.isDragging) {
-                // 检查是否是触摸设备，如果是则不处理点击事件
-                if (this.isMobileDevice()) {
+                // 只有在真正的移动设备上才阻止点击事件（因为已经有触摸事件处理了）
+                // 触屏笔记本需要支持鼠标点击
+                if (this.isTrueMobileDevice()) {
                     return;
                 }
                 handleNumberButtonClick(e);
@@ -2134,19 +2454,21 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
                 numberPad.style.left = position.x + 'px';
                 numberPad.style.top = position.y + 'px';
                 numberPad.style.transform = 'none';
+                // 使用淡入动画，不改变位置
+                numberPad.classList.remove('show-centered');
+                numberPad.classList.add('show');
             } else {
                 // 默认居中显示
                 numberPad.style.left = '50%';
                 numberPad.style.top = '50%';
                 numberPad.style.transform = 'translate(-50%, -50%)';
+                // 使用滑入动画
+                numberPad.classList.remove('show');
+                numberPad.classList.add('show-centered');
             }
             
-            // 使用requestAnimationFrame确保DOM更新完成后再显示
-            requestAnimationFrame(() => {
-                numberPad.classList.add('show');
-                this.numberPadVisible = true;
-                this.updateNumberPadButtons();
-            });
+            this.numberPadVisible = true;
+            this.updateNumberPadButtons();
         }
     }
     
@@ -2162,6 +2484,7 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
             localStorage.setItem('sudoku-numberpad-position', JSON.stringify(position));
             
             numberPad.classList.remove('show');
+            numberPad.classList.remove('show-centered');
             this.numberPadVisible = false;
         }
     }

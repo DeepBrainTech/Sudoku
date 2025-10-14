@@ -21,7 +21,9 @@
                     <option value="number" data-i18n="numberTheme">数字主题</option>
                     <option value="chess" data-i18n="chessTheme">象棋主题</option>
                     <option value="mahjong" data-i18n="mahjongTheme">麻将主题</option>
+                    <option value="custom" data-i18n="customTheme">Custom Theme</option>
                 </select>
+                <button id="customThemeBtn" type="button" class="btn btn-secondary custom-theme-btn" data-i18n="customThemeButton">Customize Symbols</button>
                 
                 <div class="size-section">
                     <div class="size-options">
@@ -34,8 +36,8 @@
                             <span data-i18n="size6x6">6x6 (简单)</span>
                         </label>
                         <label class="size-option">
-                            <input type="radio" name="boardSize" value="9" data-chess-board="true">
-                            <span data-i18n="size9x9Chess">9x9 (Chess board)</span>
+                            <input type="radio" name="boardSize" value="9" data-go-board="true">
+                            <span data-i18n="size9x9Go">9x9 (Go Board)</span>
                         </label>
                     </div>
                 </div>
@@ -117,6 +119,27 @@
                 </div>
             </div>
         </div>
+
+    <!-- 自定义主题弹窗 -->
+    <div id="customThemeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="customThemeTitle">Customize Symbols</h2>
+                <span class="close" id="closeCustomTheme">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="custom-theme-description" data-i18n="customThemeDescription">Assign a unique symbol for each number you want to replace. Leave unused values blank.</p>
+                <form id="customThemeForm" class="custom-theme-form">
+                    <div id="customThemeInputs" class="custom-theme-inputs"></div>
+                    <p id="customThemeError" class="custom-theme-error" role="alert"></p>
+                    <div class="modal-actions">
+                        <button type="button" id="cancelCustomTheme" class="btn btn-secondary" data-i18n="cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="save">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- 游戏说明弹窗 -->
     <div id="instructionsModal" class="modal">

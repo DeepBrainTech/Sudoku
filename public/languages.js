@@ -12,7 +12,7 @@ const languages = {
         boardSize: "棋盘大小",
         size9x9: "9x9 (标准)",
         size6x6: "6x6 (简单)",
-        size9x9Chess: "9x9 (chess board)",
+        size9x9Go: "9x9 (围棋棋盘)",
         
         // 难度选择
         difficulty: "难度选择",
@@ -60,6 +60,13 @@ const languages = {
         numberTheme: "数字主题",
         chessTheme: "象棋主题",
         mahjongTheme: "麻将主题",
+        customTheme: "自定义符号主题",
+        customThemeButton: "编辑符号",
+        customThemeTitle: "自定义符号",
+        customThemeDescription: "为每个数字指定唯一的符号，未使用的可以留空。",
+        customThemeDuplicateError: "请为每个数字选择不同的符号。",
+        cancel: "取消",
+        save: "保存",
         
         // 语言切换
         language: "语言",
@@ -80,7 +87,7 @@ const languages = {
         boardSize: "Board Size",
         size9x9: "9x9 (Standard)",
         size6x6: "6x6 (Easy)",
-        size9x9Chess: "9x9 (chess board)",
+        size9x9Go: "9x9 (Go Board)",
         
         // Difficulty selection
         difficulty: "Difficulty Selection",
@@ -127,6 +134,13 @@ const languages = {
         numberTheme: "Number Theme",
         chessTheme: "Chess Theme",
         mahjongTheme: "Mahjong Theme",
+        customTheme: "Custom Theme",
+        customThemeButton: "Customize Symbols",
+        customThemeTitle: "Customize Symbols",
+        customThemeDescription: "Assign a unique symbol to each number. Leave unused values blank.",
+        customThemeDuplicateError: "Please choose a unique symbol for each number.",
+        cancel: "Cancel",
+        save: "Save",
         
         // Language switching
         language: "Language",
@@ -189,7 +203,7 @@ class LanguageManager {
     updateSpecialElements() {
         // 更新棋盘大小标签
         const boardSizeRadios = document.querySelectorAll('input[name="boardSize"]');
-        const boardSizeLabels = ['size9x9', 'size6x6', 'size9x9Chess'];
+        const boardSizeLabels = ['size9x9', 'size6x6', 'size9x9Go'];
         boardSizeRadios.forEach((radio, index) => {
             const label = radio.nextElementSibling;
             if (label && boardSizeLabels[index]) {
@@ -208,7 +222,14 @@ class LanguageManager {
         });
         
         // 更新象棋符号图例
-        this.updateChessLegend();
+        if (window.sudokuGame && window.sudokuGame.forceUpdateLegend) {
+            window.sudokuGame.forceUpdateLegend();
+        } else {
+            this.updateChessLegend();
+        }
+        if (window.sudokuGame && window.sudokuGame.updateCustomThemeButton) {
+            window.sudokuGame.updateCustomThemeButton();
+        }
     }
     
     updateChessLegend() {
@@ -284,7 +305,17 @@ class LanguageManager {
         }
         
         // 更新象棋图例
-        this.updateChessLegend();
+        if (window.sudokuGame && window.sudokuGame.forceUpdateLegend) {
+            window.sudokuGame.forceUpdateLegend();
+        } else {
+            this.updateChessLegend();
+        }
+        if (window.sudokuGame && window.sudokuGame.updateCustomThemeButton) {
+            window.sudokuGame.updateCustomThemeButton();
+        }
+        if (window.sudokuGame && window.sudokuGame.updateNumberPad) {
+            window.sudokuGame.updateNumberPad();
+        }
         
         // 更新小键盘文本
         this.updateNumberPadTexts();
