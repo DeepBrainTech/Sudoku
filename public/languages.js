@@ -1,5 +1,5 @@
 // 多语言支持文件
-const languages = {
+export const languages = {
     zh: {
         // 页面标题和头部
         title: "数独",
@@ -163,7 +163,7 @@ const languages = {
 };
 
 // 语言管理类
-class LanguageManager {
+export class LanguageManager {
     constructor() {
         this.currentLanguage = localStorage.getItem('sudoku-language') || 'zh';
         this.init();
@@ -357,5 +357,3 @@ class LanguageManager {
     }
 }
 
-// 全局语言管理器实例
-let languageManager;
