@@ -5,8 +5,12 @@ const languages = {
         title: "数独",
         score: "得分",
         
-        // 象棋符号说明
-        chessSymbols: "象棋符号",
+        // 符号说明
+        symbolReference: "符号对照",
+        chessSymbols: "象棋",
+        mahjongSymbols: "麻将", 
+        zodiacSymbols: "生肖",
+        customSymbols: "自定义",
         
         // 棋盘大小选择
         boardSize: "棋盘大小",
@@ -32,6 +36,7 @@ const languages = {
         print: "打印",
         generate: "生成新谜题",
         chessTheme: "♕ 象棋主题 ♘",
+        zodiacTheme: "🐭 生肖主题 🐒",
         
         // 游戏说明
         instructions: "游戏说明",
@@ -60,6 +65,7 @@ const languages = {
         numberTheme: "数字主题",
         chessTheme: "象棋主题",
         mahjongTheme: "麻将主题",
+        zodiacTheme: "生肖主题",
         customTheme: "自定义符号主题",
         customThemeButton: "编辑符号",
         customThemeTitle: "自定义符号",
@@ -80,8 +86,12 @@ const languages = {
         title: "Sudoku",
         score: "Score",
         
-        // Chess symbols legend
+        // Symbols legend
+        symbolReference: "Symbol Reference",
         chessSymbols: "Chess Symbols",
+        mahjongSymbols: "Mahjong Symbols",
+        zodiacSymbols: "Zodiac Symbols", 
+        customSymbols: "Custom Symbols",
         
         // Board size selection
         boardSize: "Board Size",
@@ -107,6 +117,7 @@ const languages = {
         print: "Print",
         generate: "Generate New Puzzle",
         chessTheme: "♕ Chess Theme ♘",
+        zodiacTheme: "🐭 Zodiac Theme 🐒",
         
         // Game instructions
         instructions: "Game Instructions",
@@ -131,10 +142,11 @@ const languages = {
         
         // Theme selection
         theme: "Theme",
-        numberTheme: "Number Theme",
-        chessTheme: "Chess Theme",
-        mahjongTheme: "Mahjong Theme",
-        customTheme: "Custom Theme",
+        numberTheme: "Number",
+        chessTheme: "Chess",
+        mahjongTheme: "Mahjong",
+        zodiacTheme: "Zodiac",
+        customTheme: "Custom",
         customThemeButton: "Customize Symbols",
         customThemeTitle: "Customize Symbols",
         customThemeDescription: "Assign a unique symbol to each number. Leave unused values blank.",
@@ -242,9 +254,19 @@ class LanguageManager {
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 const [symbol, color] = this.getChessSymbolAndColor(i);
-                item.innerHTML = `${i} → <span style="color: ${color}">${symbol}</span>`;
+                item.innerHTML = `${i} → <span style="color: ${color}"> ${symbol}</span>`;
                 legend.appendChild(item);
             }
+        }
+        
+        // 使用通用标题
+        this.updateLegendTitle();
+    }
+
+    updateLegendTitle() {
+        const legendTitle = document.querySelector('.legend-panel h3');
+        if (legendTitle) {
+            legendTitle.textContent = this.getText('symbolReference');
         }
     }
     

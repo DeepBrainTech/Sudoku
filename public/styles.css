@@ -281,6 +281,15 @@ header {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* 生肖主题样式 - 调整表情符号大小以适应一行显示 */
+.legend-item.zodiac-symbol {
+    font-size: 1.6em; /* 减小整体字体大小 */
+}
+
+.legend-item.zodiac-symbol span {
+    font-size: 1.2em; /* 进一步减小表情符号大小 */
+}
+
 .controls {
     background: transparent;
     padding: 0;
@@ -522,6 +531,15 @@ header {
         min-height: 40px;
     }
     
+    /* 移动设备上的生肖主题样式 - 调整表情符号大小 */
+    .legend-item.zodiac-symbol {
+        font-size: 1.2em; /* 移动设备上进一步减小 */
+    }
+    
+    .legend-item.zodiac-symbol span {
+        font-size: 0.7em; /* 移动设备上进一步减小表情符号 */
+    }
+    
     #sudokuCanvas {
         width: 100%;
         max-width: 500px;
@@ -624,6 +642,15 @@ header {
         font-size: 1em;
         padding: 5px 3px;
         min-height: 35px;
+    }
+    
+    /* 小屏幕设备上的生肖主题样式 - 调整表情符号大小 */
+    .legend-item.zodiac-symbol {
+        font-size: 1.0em; /* 小屏幕设备上进一步减小 */
+    }
+    
+    .legend-item.zodiac-symbol span {
+        font-size: 0.6em; /* 小屏幕设备上进一步减小表情符号 */
     }
     
     .btn {

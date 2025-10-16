@@ -26,6 +26,7 @@ class SudokuGame {
         this.eraserMode = false;
         this.chessTheme = false; // 默认为数字主题
         this.mahjongTheme = false; // 默认为非麻将主题
+        this.zodiacTheme = false; // 默认为非生肖主题
         this.customTheme = false;
 
         const customData = this.loadCustomSymbols();
@@ -1043,6 +1044,7 @@ class SudokuGame {
         if (theme === '') return; // 如果选择的是"Theme"占位符，不做任何操作
         this.chessTheme = (theme === 'chess');
         this.mahjongTheme = (theme === 'mahjong');
+        this.zodiacTheme = (theme === 'zodiac');
         this.customTheme = (theme === 'custom');
 
         this.updateCustomThemeButton();
@@ -1452,6 +1454,30 @@ class SudokuGame {
             }
             
             this.ctx.fillText(symbol, x, offsetY);
+        } else if (this.zodiacTheme) {
+            // 绘制生肖符号
+            const [symbol, color] = this.getZodiacSymbolAndColor(num);
+            this.ctx.fillStyle = color;
+            
+            // 检测是否为真正的移动设备（手机/平板），不包括触屏笔记本
+            const isTrueMobile = this.isTrueMobileDevice();
+            
+            // 根据设备类型设置不同的字体 - 与数字主题保持一致
+            if (isTrueMobile) {
+                // 手机/平板设备：使用与数字主题相同的字体大小
+                this.ctx.font = `bold ${Math.max(20, this.cell * 0.6)}px "Arial", "Helvetica", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+            } else {
+                // 桌面设备/触屏笔记本：使用与数字主题相同的字体大小
+                this.ctx.font = `bold ${Math.max(28, this.cell * 0.6)}px Arial`;
+            }
+            
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            
+            // 根据设备类型调整位置 - 与数字主题保持一致
+            let offsetY = y + this.cell * 0.01;
+            
+            this.ctx.fillText(symbol, x, offsetY);
         } else if (this.customTheme) {
             const symbol = this.getCustomSymbol(num);
             const characterCount = Math.max(1, Array.from(symbol).length);
@@ -1598,6 +1624,36 @@ class SudokuGame {
         };
         return mapping[num] || [num.toString(), '#222'];
     }
+
+    getZodiacSymbolAndColor(num) {
+        const mapping = {
+            1: ['🐭', '#ff6b9d'], // 鼠 - 粉色
+            2: ['🐄', '#8b4513'], // 牛 - 棕色
+            3: ['🐅', '#ff8c00'], // 虎 - 橙色
+            4: ['🐇', '#c0c0c0'], // 兔 - 银色
+            5: ['🐉', '#00ff00'], // 龙 - 绿色
+            6: ['🐍', '#32cd32'], // 蛇 - 绿色
+            7: ['🐎', '#8b4513'], // 马 - 棕色
+            8: ['🐑', '#ffffff'], // 羊 - 白色
+            9: ['🐒', '#ffa500']  // 猴 - 橙色
+        };
+        return mapping[num] || [num.toString(), '#222'];
+    }
+
+    getZodiacName(num) {
+        const mapping = {
+            1: '鼠',
+            2: '牛', 
+            3: '虎',
+            4: '兔',
+            5: '龙',
+            6: '蛇',
+            7: '马',
+            8: '羊',
+            9: '猴'
+        };
+        return mapping[num] || num.toString();
+    }
     
     updateLegend() {
         if (this.languageManager) {
@@ -1605,38 +1661,76 @@ class SudokuGame {
                 this.languageManager.updateChessLegend();
             } else if (this.mahjongTheme) {
                 this.updateMahjongLegend();
+            } else if (this.zodiacTheme) {
+                this.updateZodiacLegend();
             } else if (this.customTheme) {
                 this.updateCustomLegend();
             } else {
-                this.languageManager.updateChessLegend();
+                // Number主题 - 显示数字1-9
+                this.updateNumberLegend();
             }
         } else {
-            const legend = document.getElementById('legend');
-            if (legend) {
-                legend.innerHTML = '';
-                for (let i = 1; i <= this.SIZE; i++) {
-                    const item = document.createElement('div');
-                    item.className = 'legend-item';
-                    const labelSpan = document.createElement('span');
-                    labelSpan.textContent = `${i} -> `;
-                    const symbolSpan = document.createElement('span');
-                    let symbol = i.toString();
-                    let color = '#222';
-                    if (this.chessTheme) {
-                        [symbol, color] = this.getChessSymbolAndColor(i);
-                    } else if (this.mahjongTheme) {
-                        [symbol, color] = this.getMahjongSymbolAndColor(i);
-                    } else if (this.customTheme) {
-                        symbol = this.getCustomSymbol(i);
-                        color = '#1976d2';
-                    }
-                    symbolSpan.style.color = color;
-                    symbolSpan.textContent = symbol;
-                    item.appendChild(labelSpan);
-                    item.appendChild(symbolSpan);
-                    legend.appendChild(item);
-                }
+            this.updateGenericLegend();
+        }
+    }
+
+    updateNumberLegend() {
+        const legend = document.getElementById('legend');
+        if (legend) {
+            legend.innerHTML = '';
+            for (let i = 1; i <= this.SIZE; i++) {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                const symbol = i.toString();
+                const color = '#222';
+                item.innerHTML = `${i} → <span style="color: ${color}"> ${symbol}</span>`;
+                legend.appendChild(item);
             }
+        }
+        
+        // 使用通用标题
+        this.updateLegendTitle();
+    }
+
+    updateGenericLegend() {
+        const legend = document.getElementById('legend');
+        if (legend) {
+            legend.innerHTML = '';
+            for (let i = 1; i <= this.SIZE; i++) {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = ` ${i} → `;
+                const symbolSpan = document.createElement('span');
+                let symbol = i.toString();
+                let color = '#222';
+                if (this.chessTheme) {
+                    [symbol, color] = this.getChessSymbolAndColor(i);
+                } else if (this.mahjongTheme) {
+                    [symbol, color] = this.getMahjongSymbolAndColor(i);
+                } else if (this.zodiacTheme) {
+                    [symbol, color] = this.getZodiacSymbolAndColor(i);
+                    item.className = 'legend-item zodiac-symbol'; // 添加生肖符号特殊类
+                } else if (this.customTheme) {
+                    symbol = this.getCustomSymbol(i);
+                    color = '#1976d2';
+                }
+                symbolSpan.style.color = color;
+                symbolSpan.textContent = symbol;
+                item.appendChild(labelSpan);
+                item.appendChild(symbolSpan);
+                legend.appendChild(item);
+            }
+        }
+        
+        // 更新图例标题为通用标题
+        this.updateLegendTitle();
+    }
+
+    updateLegendTitle() {
+        const legendTitle = document.querySelector('.legend-panel h3');
+        if (legendTitle) {
+            legendTitle.textContent = this.languageManager ? this.languageManager.getText('symbolReference') : '符号对照';
         }
     }
 
@@ -1648,10 +1742,30 @@ class SudokuGame {
                 const [symbol, color] = this.getMahjongSymbolAndColor(i);
                 const item = document.createElement('div');
                 item.className = 'legend-item';
-                item.innerHTML = `${i} → <span style="color: ${color}">${symbol}</span>`;
+                item.innerHTML = `${i} → <span style="color: ${color}"> ${symbol}</span>`;
                 legend.appendChild(item);
             }
         }
+        
+        // 使用通用标题
+        this.updateLegendTitle();
+    }
+
+    updateZodiacLegend() {
+        const legend = document.getElementById('legend');
+        if (legend) {
+            legend.innerHTML = '';
+            for (let i = 1; i <= this.SIZE; i++) {
+                const [symbol, color] = this.getZodiacSymbolAndColor(i);
+                const item = document.createElement('div');
+                item.className = 'legend-item zodiac-symbol'; // 添加生肖符号特殊类
+                item.innerHTML = `${i} → <span style="color: ${color}"> ${symbol}</span>`;
+                legend.appendChild(item);
+            }
+        }
+        
+        // 使用通用标题
+        this.updateLegendTitle();
     }
 
     updateCustomLegend() {
@@ -1661,15 +1775,14 @@ class SudokuGame {
         for (let i = 1; i <= this.SIZE; i++) {
             const item = document.createElement('div');
             item.className = 'legend-item';
-            const labelSpan = document.createElement('span');
-            labelSpan.textContent = `${i} -> `;
-            const symbolSpan = document.createElement('span');
-            symbolSpan.style.color = '#1976d2';
-            symbolSpan.textContent = this.getCustomSymbol(i);
-            item.appendChild(labelSpan);
-            item.appendChild(symbolSpan);
+            const symbol = this.getCustomSymbol(i);
+            const color = '#1976d2';
+            item.innerHTML = `${i} → <span style="color: ${color}"> ${symbol}</span>`;
             legend.appendChild(item);
         }
+        
+        // 使用通用标题
+        this.updateLegendTitle();
     }
 
     updateCustomThemeButton() {
@@ -2345,11 +2458,19 @@ Post it directly to Instagram, Facebook, X, WhatsApp, or WeChat.`;
             if (this.customTheme) {
                 button.classList.add('number-btn-custom');
             }
-            const display = this.customTheme ? this.getCustomSymbol(i) : i.toString();
+            let display = i.toString();
+            if (this.customTheme) {
+                display = this.getCustomSymbol(i);
+            } else if (this.zodiacTheme) {
+                const [symbol] = this.getZodiacSymbolAndColor(i);
+                display = symbol;
+            }
             button.textContent = display;
             button.dataset.number = i.toString();
             if (this.customTheme) {
                 button.title = `${i}`;
+            } else if (this.zodiacTheme) {
+                button.title = `${i} - ${this.getZodiacName(i)}`;
             } else if (button.title) {
                 button.removeAttribute('title');
             }
