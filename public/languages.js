@@ -1,4 +1,4 @@
-// 多语言支持文件
+﻿// 多语言支持文件
 export const languages = {
     zh: {
         // 页面标题和头部
@@ -71,6 +71,16 @@ export const languages = {
         customThemeTitle: "自定义符号",
         customThemeDescription: "为每个数字指定唯一的符号，未使用的可以留空。",
         customThemeDuplicateError: "请为每个数字选择不同的符号。",
+        uploadTheme: "上传",
+        uploadThemeButton: "上传图片",
+        uploadThemeTitle: "上传图片主题",
+        uploadThemeDescription: "为数字1-9分别选择一张图片，我们会自动裁剪并适配圆形棋子。",
+        uploadThemeReset: "清除全部图片",
+        uploadPreviewPlaceholder: "等待上传",
+        uploadThemeMissingError: "请为所有数字上传图片后再保存。",
+        uploadThemeInvalidFile: "只能上传图片文件。",
+        uploadThemeProcessing: "图片处理中，请稍候……",
+        uploadShowNumbers: "显示数字标记",
         cancel: "取消",
         save: "保存",
         
@@ -151,6 +161,16 @@ export const languages = {
         customThemeTitle: "Customize Symbols",
         customThemeDescription: "Assign a unique symbol to each number. Leave unused values blank.",
         customThemeDuplicateError: "Please choose a unique symbol for each number.",
+        uploadTheme: "Upload",
+        uploadThemeButton: "Upload Images",
+        uploadThemeTitle: "Upload Image Theme",
+        uploadThemeDescription: "Choose one image for each number (1-9). We crop it automatically to fit the circular pieces.",
+        uploadThemeReset: "Clear All Images",
+        uploadPreviewPlaceholder: "Waiting for upload",
+        uploadThemeMissingError: "Please upload images for all numbers before saving.",
+        uploadThemeInvalidFile: "Only image files are supported.",
+        uploadThemeProcessing: "Processing image, please wait...",
+        uploadShowNumbers: "Show Numbers On Images",
         cancel: "Cancel",
         save: "Save",
         
@@ -241,6 +261,9 @@ export class LanguageManager {
         }
         if (window.sudokuGame && window.sudokuGame.updateCustomThemeButton) {
             window.sudokuGame.updateCustomThemeButton();
+        }
+        if (window.sudokuGame && window.sudokuGame.updateUploadThemeButton) {
+            window.sudokuGame.updateUploadThemeButton();
         }
     }
     
@@ -335,6 +358,9 @@ export class LanguageManager {
         if (window.sudokuGame && window.sudokuGame.updateCustomThemeButton) {
             window.sudokuGame.updateCustomThemeButton();
         }
+        if (window.sudokuGame && window.sudokuGame.updateUploadThemeButton) {
+            window.sudokuGame.updateUploadThemeButton();
+        }
         if (window.sudokuGame && window.sudokuGame.updateNumberPad) {
             window.sudokuGame.updateNumberPad();
         }
@@ -356,4 +382,8 @@ export class LanguageManager {
         if (eraserBtn) eraserBtn.textContent = this.getText('eraser');
     }
 }
+
+
+
+
 

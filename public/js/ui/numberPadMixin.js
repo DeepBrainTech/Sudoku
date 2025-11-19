@@ -55,24 +55,43 @@ export const numberPadMixin = {
         for (let i = 1; i <= this.SIZE; i++) {
             const button = document.createElement('button');
             button.classList.add('number-btn');
-            if (this.customTheme) {
-                button.classList.add('number-btn-custom');
-            }
-            let display = i.toString();
-            if (this.customTheme) {
-                display = this.getCustomSymbol(i);
-            } else if (this.zodiacTheme) {
-                const [symbol] = this.getZodiacSymbolAndColor(i);
-                display = symbol;
-            }
-            button.textContent = display;
             button.dataset.number = i.toString();
-            if (this.customTheme) {
+            if (this.uploadTheme) {
+                button.classList.add('number-btn-upload');
+                const preview = document.createElement('span');
+                preview.className = 'number-btn-upload-preview';
+                preview.dataset.number = i.toString();
+                preview.dataset.labelText = i.toString();
+                const imageData = this.getUploadThemeImage ? this.getUploadThemeImage(i) : null;
+                if (this.applyUploadPreviewStyles) {
+                    this.applyUploadPreviewStyles(preview, imageData, i.toString(), i.toString());
+                } else if (imageData && imageData.src) {
+                    preview.style.backgroundImage = `url(${imageData.src})`;
+                    preview.classList.add('has-image');
+                } else {
+                    preview.textContent = i.toString();
+                }
+                button.appendChild(preview);
                 button.title = `${i}`;
-            } else if (this.zodiacTheme) {
-                button.title = `${i} - ${this.getZodiacName(i)}`;
-            } else if (button.title) {
-                button.removeAttribute('title');
+            } else {
+                if (this.customTheme) {
+                    button.classList.add('number-btn-custom');
+                }
+                let display = i.toString();
+                if (this.customTheme) {
+                    display = this.getCustomSymbol(i);
+                } else if (this.zodiacTheme) {
+                    const [symbol] = this.getZodiacSymbolAndColor(i);
+                    display = symbol;
+                }
+                button.textContent = display;
+                if (this.customTheme) {
+                    button.title = `${i}`;
+                } else if (this.zodiacTheme) {
+                    button.title = `${i} - ${this.getZodiacName(i)}`;
+                } else if (button.title) {
+                    button.removeAttribute('title');
+                }
             }
             numberPadGrid.appendChild(button);
         }

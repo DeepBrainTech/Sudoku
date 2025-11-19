@@ -23,8 +23,10 @@
                     <option value="mahjong" data-i18n="mahjongTheme">麻将主题</option>
                     <option value="zodiac" data-i18n="zodiacTheme"></option>
                     <option value="custom" data-i18n="customTheme">Custom Theme</option>
+                    <option value="upload" data-i18n="uploadTheme">Upload Theme</option>
                 </select>
                 <button id="customThemeBtn" type="button" class="btn btn-secondary custom-theme-btn" data-i18n="customThemeButton">Customize Symbols</button>
+                <button id="uploadThemeBtn" type="button" class="btn btn-secondary upload-theme-btn" data-i18n="uploadThemeButton">Upload Images</button>
                 
                 <div class="size-section">
                     <div class="size-options">
@@ -136,6 +138,34 @@
                     <div class="modal-actions">
                         <button type="button" id="cancelCustomTheme" class="btn btn-secondary" data-i18n="cancel">Cancel</button>
                         <button type="submit" class="btn btn-primary" data-i18n="save">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上传主题弹窗 -->
+    <div id="uploadThemeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="uploadThemeTitle">上传图片主题</h2>
+                <span class="close" id="closeUploadTheme">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="upload-theme-description" data-i18n="uploadThemeDescription">为每个数字选择一张图片，我们会自动裁剪并适配圆形棋子。</p>
+                <form id="uploadThemeForm" class="upload-theme-form">
+                    <div id="uploadThemeInputs" class="upload-theme-grid"></div>
+                    <p id="uploadThemeError" class="upload-theme-error" role="alert"></p>
+                    <div class="upload-theme-options">
+                        <label class="upload-option">
+                            <input type="checkbox" id="showUploadNumbers">
+                            <span data-i18n="uploadShowNumbers">显示数字标记</span>
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="resetUploadTheme" class="btn btn-secondary" data-i18n="uploadThemeReset">清除全部</button>
+                        <button type="button" id="cancelUploadTheme" class="btn btn-secondary" data-i18n="cancel">取消</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="save">保存</button>
                     </div>
                 </form>
             </div>

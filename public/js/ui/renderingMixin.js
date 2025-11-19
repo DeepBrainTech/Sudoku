@@ -1,4 +1,4 @@
-export const renderingMixin = {
+﻿export const renderingMixin = {
     drawGrid() {
         document.getElementById('score').textContent = this.score;
         
@@ -8,9 +8,9 @@ export const renderingMixin = {
         
         const boardEnd = this.margin + this.SIZE * this.cell;
         
-        // 根据棋盘大小绘制不同的网格线
+        // æ ¹æ®æ£‹ç›˜å¤§å°ç»˜åˆ¶ä¸åŒçš„ç½‘æ ¼çº¿
         if (this.SIZE === 9) {
-            // 检查是否是Go board选项
+            // æ£€æŸ¥æ˜¯å¦æ˜¯Go boardé€‰é¡¹
             const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
             if (goBoardRadio && goBoardRadio.checked) {
                 this.draw9x9GoGrid(boardEnd);
@@ -21,7 +21,7 @@ export const renderingMixin = {
             this.draw6x6Grid(boardEnd);
         }
         
-        // 绘制数字
+        // ç»˜åˆ¶æ•°å­—
         if (this.puzzle) {
             for (let r = 0; r < this.SIZE; r++) {
                 for (let c = 0; c < this.SIZE; c++) {
@@ -36,7 +36,7 @@ export const renderingMixin = {
             }
         }
         
-        // 绘制选中格子的高亮效果
+        // ç»˜åˆ¶é€‰ä¸­æ ¼å­çš„é«˜äº®æ•ˆæžœ
         if (this.selected) {
             this.highlightIntersection(this.selected[0], this.selected[1]);
         }
@@ -44,14 +44,14 @@ export const renderingMixin = {
     },
 
     draw9x9Grid(boardEnd) {
-        // 9x9数独：3x3宫格
-        const highlightRows = new Set([0, 3, 6, this.SIZE]);  // 行加粗位置
-        const highlightCols = new Set([0, 3, 6, this.SIZE]);  // 列加粗位置
+        // 9x9æ•°ç‹¬ï¼š3x3å®«æ ¼
+        const highlightRows = new Set([0, 3, 6, this.SIZE]);  // è¡ŒåŠ ç²—ä½ç½®
+        const highlightCols = new Set([0, 3, 6, this.SIZE]);  // åˆ—åŠ ç²—ä½ç½®
         
         for (let i = 0; i <= this.SIZE; i++) {
             const pos = this.margin + i * this.cell;
             
-            // 绘制水平线（行）
+            // ç»˜åˆ¶æ°´å¹³çº¿ï¼ˆè¡Œï¼‰
             const rowLineWidth = highlightRows.has(i) ? 6 : 2;
             const rowLineColor = highlightRows.has(i) ? '#d2691e' : '#8b5c2a';
             
@@ -62,7 +62,7 @@ export const renderingMixin = {
             this.ctx.lineTo(boardEnd, pos);
             this.ctx.stroke();
             
-            // 绘制垂直线（列）
+            // ç»˜åˆ¶åž‚ç›´çº¿ï¼ˆåˆ—ï¼‰
             const colLineWidth = highlightCols.has(i) ? 6 : 2;
             const colLineColor = highlightCols.has(i) ? '#d2691e' : '#8b5c2a';
             
@@ -76,14 +76,14 @@ export const renderingMixin = {
     },
 
     draw6x6Grid(boardEnd) {
-        // 6x6数独：2x3宫格
-        const highlightRows = new Set([0, 2, 4, 6, this.SIZE]);  // 行加粗位置
-        const highlightCols = new Set([0, 3, 6, this.SIZE]);     // 列加粗位置
+        // 6x6æ•°ç‹¬ï¼š2x3å®«æ ¼
+        const highlightRows = new Set([0, 2, 4, 6, this.SIZE]);  // è¡ŒåŠ ç²—ä½ç½®
+        const highlightCols = new Set([0, 3, 6, this.SIZE]);     // åˆ—åŠ ç²—ä½ç½®
         
         for (let i = 0; i <= this.SIZE; i++) {
             const pos = this.margin + i * this.cell;
             
-            // 绘制水平线（行）
+            // ç»˜åˆ¶æ°´å¹³çº¿ï¼ˆè¡Œï¼‰
             const rowLineWidth = highlightRows.has(i) ? 6 : 2;
             const rowLineColor = highlightRows.has(i) ? '#d2691e' : '#8b5c2a';
             
@@ -94,7 +94,7 @@ export const renderingMixin = {
             this.ctx.lineTo(boardEnd, pos);
             this.ctx.stroke();
             
-            // 绘制垂直线（列）
+            // ç»˜åˆ¶åž‚ç›´çº¿ï¼ˆåˆ—ï¼‰
             const colLineWidth = highlightCols.has(i) ? 6 : 2;
             const colLineColor = highlightCols.has(i) ? '#d2691e' : '#8b5c2a';
             
@@ -108,10 +108,10 @@ export const renderingMixin = {
     },
 
     draw9x9GoGrid(boardEnd) {
-        // 9x9数独：Go board样式 - 2x2小方格组加粗
-        // 只需要输入2x2方格的左上角坐标，自动加粗整个2x2方格
+        // 9x9æ•°ç‹¬ï¼šGo boardæ ·å¼ - 2x2å°æ–¹æ ¼ç»„åŠ ç²—
+        // åªéœ€è¦è¾“å…¥2x2æ–¹æ ¼çš„å·¦ä¸Šè§’åæ ‡ï¼Œè‡ªåŠ¨åŠ ç²—æ•´ä¸ª2x2æ–¹æ ¼
         const highlightSquares = [
-            // 示例：输入2x2方格的左上角坐标
+            // ç¤ºä¾‹ï¼šè¾“å…¥2x2æ–¹æ ¼çš„å·¦ä¸Šè§’åæ ‡
                 {row: 0, col: 0},
                 {row: 0, col: 3},
                 {row: 0, col: 6},
@@ -124,16 +124,16 @@ export const renderingMixin = {
 
         ];
         
-        // 计算8x8棋盘的尺寸
+        // è®¡ç®—8x8æ£‹ç›˜çš„å°ºå¯¸
         const goSize = 8;
         const goCell = (this.side - 2 * this.margin) / goSize;
         const goBoardEnd = this.margin + goSize * goCell;
         
-        // 先绘制所有普通线条 - 7条线形成8个格子
+        // å…ˆç»˜åˆ¶æ‰€æœ‰æ™®é€šçº¿æ¡ - 7æ¡çº¿å½¢æˆ8ä¸ªæ ¼å­
         for (let i = 1; i < goSize; i++) {
             const pos = this.margin + i * goCell;
             
-            // 绘制水平线
+            // ç»˜åˆ¶æ°´å¹³çº¿
             this.ctx.strokeStyle = '#8b5c2a';
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
@@ -141,7 +141,7 @@ export const renderingMixin = {
             this.ctx.lineTo(goBoardEnd, pos);
             this.ctx.stroke();
             
-            // 绘制垂直线
+            // ç»˜åˆ¶åž‚ç›´çº¿
             this.ctx.strokeStyle = '#8b5c2a';
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
@@ -150,46 +150,46 @@ export const renderingMixin = {
             this.ctx.stroke();
         }
         
-        // 绘制边框线
+        // ç»˜åˆ¶è¾¹æ¡†çº¿
         this.ctx.strokeStyle = '#8b5c2a';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
         this.ctx.rect(this.margin, this.margin, goSize * goCell, goSize * goCell);
         this.ctx.stroke();
         
-        // 然后为每个2x2方格绘制加粗边框
+        // ç„¶åŽä¸ºæ¯ä¸ª2x2æ–¹æ ¼ç»˜åˆ¶åŠ ç²—è¾¹æ¡†
         highlightSquares.forEach(square => {
             const {row, col} = square;
             
-            // 计算2x2方格的像素坐标
+            // è®¡ç®—2x2æ–¹æ ¼çš„åƒç´ åæ ‡
             const startX = this.margin + col * goCell;
             const endX = this.margin + (col + 2) * goCell;
             const startY = this.margin + row * goCell;
             const endY = this.margin + (row + 2) * goCell;
             
-            // 绘制2x2方格的加粗边框
+            // ç»˜åˆ¶2x2æ–¹æ ¼çš„åŠ ç²—è¾¹æ¡†
             this.ctx.strokeStyle = '#d2691e';
             this.ctx.lineWidth = 6;
             
-            // 上边
+            // ä¸Šè¾¹
             this.ctx.beginPath();
             this.ctx.moveTo(startX, startY);
             this.ctx.lineTo(endX, startY);
             this.ctx.stroke();
             
-            // 下边
+            // ä¸‹è¾¹
             this.ctx.beginPath();
             this.ctx.moveTo(startX, endY);
             this.ctx.lineTo(endX, endY);
             this.ctx.stroke();
             
-            // 左边
+            // å·¦è¾¹
             this.ctx.beginPath();
             this.ctx.moveTo(startX, startY);
             this.ctx.lineTo(startX, endY);
             this.ctx.stroke();
             
-            // 右边
+            // å³è¾¹
             this.ctx.beginPath();
             this.ctx.moveTo(endX, startY);
             this.ctx.lineTo(endX, endY);
@@ -198,28 +198,28 @@ export const renderingMixin = {
     },
 
     drawCircle(r, c, num, fixed = false) {
-        // 检查是否是Go board模式
+        // æ£€æŸ¥æ˜¯å¦æ˜¯Go boardæ¨¡å¼
         const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
         const isGoBoard = goBoardRadio && goBoardRadio.checked;
         
         let x, y, radius;
         
         if (isGoBoard) {
-            // Go board模式：绘制在交叉点上
+            // Go boardæ¨¡å¼ï¼šç»˜åˆ¶åœ¨äº¤å‰ç‚¹ä¸Š
             const goSize = 8;
             const goCell = (this.side - 2 * this.margin) / goSize;
             x = this.margin + c * goCell;
             y = this.margin + r * goCell;
-            radius = goCell * 0.4; // 稍微小一点，适合交叉点
+            radius = goCell * 0.4; // ç¨å¾®å°ä¸€ç‚¹ï¼Œé€‚åˆäº¤å‰ç‚¹
         } else {
-            // 普通模式：绘制在方格中心
+            // æ™®é€šæ¨¡å¼ï¼šç»˜åˆ¶åœ¨æ–¹æ ¼ä¸­å¿ƒ
             x = this.margin + c * this.cell + this.cell / 2;
             y = this.margin + r * this.cell + this.cell / 2;
             radius = this.cell * 0.42;
         }
         
-        // 如果不是麻将主题，绘制圆圈
-        if (!this.mahjongTheme) {
+        // å¦‚æžœä¸æ˜¯éº»å°†ä¸»é¢˜ä¸”ä¸æ˜¯ä¸Šä¼ ä¸»é¢˜ï¼Œç»˜åˆ¶åœ†åœˆ
+        if (!this.mahjongTheme && !this.uploadTheme) {
             this.ctx.beginPath();
             this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
             this.ctx.fillStyle = fixed ? '#fffbe6' : '#e0f7fa';
@@ -229,77 +229,80 @@ export const renderingMixin = {
             this.ctx.stroke();
         }
         
-        // 绘制数字或符号
-        if (this.chessTheme) {
+        // ç»˜åˆ¶æ•°å­—æˆ–ç¬¦å·
+        if (this.uploadTheme) {
+            // ç»˜åˆ¶ä¸Šä¼ ä¸»é¢˜å›¾ç‰‡
+            this.drawUploadThemePiece(x, y, radius, num, fixed);
+        } else if (this.chessTheme) {
             const [symbol, color] = this.getChessSymbolAndColor(num);
             this.ctx.fillStyle = color;
             
-            // 检测是否为真正的移动设备（手机/平板），不包括触屏笔记本
+            // æ£€æµ‹æ˜¯å¦ä¸ºçœŸæ­£çš„ç§»åŠ¨è®¾å¤‡ï¼ˆæ‰‹æœº/å¹³æ¿ï¼‰ï¼Œä¸åŒ…æ‹¬è§¦å±ç¬”è®°æœ¬
             const isTrueMobile = this.isTrueMobileDevice();
             
-            // 根据设备类型设置不同的字体
+            // æ ¹æ®è®¾å¤‡ç±»åž‹è®¾ç½®ä¸åŒçš„å­—ä½“
             if (isTrueMobile) {
-                // 手机/平板设备：使用Arial字体，但保留回退选项以确保Unicode字符正确显示
+                // æ‰‹æœº/å¹³æ¿è®¾å¤‡ï¼šä½¿ç”¨Arialå­—ä½“ï¼Œä½†ä¿ç•™å›žé€€é€‰é¡¹ä»¥ç¡®ä¿Unicodeå­—ç¬¦æ­£ç¡®æ˜¾ç¤º
                 this.ctx.font = `bold ${Math.max(32, this.cell * 0.8)}px "Arial", "Helvetica", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
             } else {
-                // 桌面设备/触屏笔记本：使用原有字体设置
+                // æ¡Œé¢è®¾å¤‡/è§¦å±ç¬”è®°æœ¬ï¼šä½¿ç”¨åŽŸæœ‰å­—ä½“è®¾ç½®
                 this.ctx.font = `bold ${Math.max(26, this.cell * 0.7)}px Arial`;
             }
             
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
             
-            // 为不同的象棋符号提供精确的垂直偏移调整
+            // ä¸ºä¸åŒçš„è±¡æ£‹ç¬¦å·æä¾›ç²¾ç¡®çš„åž‚ç›´åç§»è°ƒæ•´
             let offsetY = y;
             if (isTrueMobile) {
-                // 手机/平板设备上的调整
+                // æ‰‹æœº/å¹³æ¿è®¾å¤‡ä¸Šçš„è°ƒæ•´
                 switch(symbol) {
-                    case '♖': // 车
-                    case '♜':
+                    case 'â™–': // è½¦
+                    case 'â™œ':
                         offsetY = y + this.cell * 0.01;
                         break;
-                    case '♘': // 马
-                    case '♞':
+                    case 'â™˜': // é©¬
+                    case 'â™ž':
                         offsetY = y - this.cell * 0.01;
                         break;
-                    case '♗': // 象
-                    case '♝':
+                    case 'â™—': // è±¡
+                    case 'â™':
                         offsetY = y - this.cell * 0.01;
                         break;
-                    case '♕': // 后
+                    case 'â™•': // åŽ
                         offsetY = y - this.cell * 0.01;
                         break;
-                    case '♔': // 王
+                    case 'â™”': // çŽ‹
                         offsetY = y - this.cell * 0.01;
                         break;
-                    case '♙': // 兵
+                    case 'â™™': // å…µ
                         offsetY = y + this.cell * 0.01;
                         break;
                     default:
                         offsetY = y;
                 }
             } else {
-                // 桌面设备/触屏笔记本的调整
+                // æ¡Œé¢è®¾å¤‡/è§¦å±ç¬”è®°æœ¬çš„è°ƒæ•´
                 switch(symbol) {
-                    case '♖': // 车 - 需要稍微向下偏移
-                    case '♜':
+                    case 'â™–': // è½¦ - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
+                    case 'â™œ':
                         offsetY = y + this.cell * 0.03;
                         break;
-                    case '♘': // 马 - 需要稍微向下偏移
-                    case '♞':
+                    case 'â™˜': // é©¬ - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
+                    case 'â™ž':
                         offsetY = y + this.cell * 0.02;
                         break;
-                    case '♗': // 象 - 需要稍微向下偏移
-                    case '♝':
+                    case 'â™—': // è±¡ - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
+                    case 'â™':
                         offsetY = y + this.cell * 0.02;
                         break;
-                    case '♕': // 后 - 需要稍微向下偏移
+                    case 'â™•': // åŽ - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                         offsetY = y + this.cell * 0.02;
                         break;
-                    case '♔': // 王 - 需要稍微向下偏移
+                    case 'â™”': // çŽ‹ - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                         offsetY = y + this.cell * 0.02;
                         break;
-                    case '♙': // 兵 - 需要稍微向下偏移
+                    case 'â™™': // å…µ - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                         offsetY = y + this.cell * 0.03;
                         break;
                     default:
@@ -309,57 +312,57 @@ export const renderingMixin = {
             
             this.ctx.fillText(symbol, x, offsetY);
         } else if (this.mahjongTheme) {
-            // 绘制麻将符号，直接填充整个格子
+            // ç»˜åˆ¶éº»å°†ç¬¦å·ï¼Œç›´æŽ¥å¡«å……æ•´ä¸ªæ ¼å­
             const [symbol, color] = this.getMahjongSymbolAndColor(num);
             this.ctx.fillStyle = color;
             
-            // 检测是否为真正的移动设备（手机/平板），不包括触屏笔记本
+            // æ£€æµ‹æ˜¯å¦ä¸ºçœŸæ­£çš„ç§»åŠ¨è®¾å¤‡ï¼ˆæ‰‹æœº/å¹³æ¿ï¼‰ï¼Œä¸åŒ…æ‹¬è§¦å±ç¬”è®°æœ¬
             const isTrueMobile = this.isTrueMobileDevice();
             
-            // 根据设备类型设置不同的字体
+            // æ ¹æ®è®¾å¤‡ç±»åž‹è®¾ç½®ä¸åŒçš„å­—ä½“
             if (isTrueMobile) {
-                // 手机/平板设备：使用更大的字体和更好的字体族
+                // æ‰‹æœº/å¹³æ¿è®¾å¤‡ï¼šä½¿ç”¨æ›´å¤§çš„å­—ä½“å’Œæ›´å¥½çš„å­—ä½“æ—
                 this.ctx.font = `bold ${Math.max(40, this.cell * 1.0)}px "Arial"`;
             } else {
-                // 桌面设备/触屏笔记本：使用原有字体设置
+                // æ¡Œé¢è®¾å¤‡/è§¦å±ç¬”è®°æœ¬ï¼šä½¿ç”¨åŽŸæœ‰å­—ä½“è®¾ç½®
                 this.ctx.font = `bold ${Math.max(40, this.cell * 1.0)}px Arial`;
             }
             
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
             
-            // 根据设备类型调整位置
+            // æ ¹æ®è®¾å¤‡ç±»åž‹è°ƒæ•´ä½ç½®
             let offsetY = y;
             if (isTrueMobile) {
-                // 手机/平板设备：调整位置以适应字体渲染差异
-                offsetY = y + this.cell * -0.15; // 轻微向下调整
+                // æ‰‹æœº/å¹³æ¿è®¾å¤‡ï¼šè°ƒæ•´ä½ç½®ä»¥é€‚åº”å­—ä½“æ¸²æŸ“å·®å¼‚
+                offsetY = y + this.cell * -0.15; // è½»å¾®å‘ä¸‹è°ƒæ•´
             } else {
-                // 桌面设备/触屏笔记本：使用原有位置
+                // æ¡Œé¢è®¾å¤‡/è§¦å±ç¬”è®°æœ¬ï¼šä½¿ç”¨åŽŸæœ‰ä½ç½®
                 offsetY = y + this.cell * 0.08;
             }
             
             this.ctx.fillText(symbol, x, offsetY);
         } else if (this.zodiacTheme) {
-            // 绘制生肖符号
+            // ç»˜åˆ¶ç”Ÿè‚–ç¬¦å·
             const [symbol, color] = this.getZodiacSymbolAndColor(num);
             this.ctx.fillStyle = color;
             
-            // 检测是否为真正的移动设备（手机/平板），不包括触屏笔记本
+            // æ£€æµ‹æ˜¯å¦ä¸ºçœŸæ­£çš„ç§»åŠ¨è®¾å¤‡ï¼ˆæ‰‹æœº/å¹³æ¿ï¼‰ï¼Œä¸åŒ…æ‹¬è§¦å±ç¬”è®°æœ¬
             const isTrueMobile = this.isTrueMobileDevice();
             
-            // 根据设备类型设置不同的字体 - 与数字主题保持一致
+            // æ ¹æ®è®¾å¤‡ç±»åž‹è®¾ç½®ä¸åŒçš„å­—ä½“ - ä¸Žæ•°å­—ä¸»é¢˜ä¿æŒä¸€è‡´
             if (isTrueMobile) {
-                // 手机/平板设备：使用与数字主题相同的字体大小
+                // æ‰‹æœº/å¹³æ¿è®¾å¤‡ï¼šä½¿ç”¨ä¸Žæ•°å­—ä¸»é¢˜ç›¸åŒçš„å­—ä½“å¤§å°
                 this.ctx.font = `bold ${Math.max(20, this.cell * 0.6)}px "Arial", "Helvetica", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
             } else {
-                // 桌面设备/触屏笔记本：使用与数字主题相同的字体大小
+                // æ¡Œé¢è®¾å¤‡/è§¦å±ç¬”è®°æœ¬ï¼šä½¿ç”¨ä¸Žæ•°å­—ä¸»é¢˜ç›¸åŒçš„å­—ä½“å¤§å°
                 this.ctx.font = `bold ${Math.max(28, this.cell * 0.6)}px Arial`;
             }
             
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'middle';
             
-            // 根据设备类型调整位置 - 与数字主题保持一致
+            // æ ¹æ®è®¾å¤‡ç±»åž‹è°ƒæ•´ä½ç½® - ä¸Žæ•°å­—ä¸»é¢˜ä¿æŒä¸€è‡´
             let offsetY = y + this.cell * 0.01;
             
             this.ctx.fillText(symbol, x, offsetY);
@@ -380,34 +383,34 @@ export const renderingMixin = {
             this.ctx.textBaseline = 'middle';
             const text = num.toString();
             
-            // 为不同数字提供精确的垂直偏移调整
+            // ä¸ºä¸åŒæ•°å­—æä¾›ç²¾ç¡®çš„åž‚ç›´åç§»è°ƒæ•´
             let offsetY = y;
             switch(num) {
-                case 1: // 数字1 - 需要稍微向下偏移
+                case 1: // æ•°å­—1 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.015;
                     break;
-                case 2: // 数字2 - 需要稍微向下偏移
+                case 2: // æ•°å­—2 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
-                case 3: // 数字3 - 需要稍微向下偏移
+                case 3: // æ•°å­—3 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
-                case 4: // 数字4 - 需要稍微向下偏移
+                case 4: // æ•°å­—4 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
-                case 5: // 数字5 - 需要稍微向下偏移
+                case 5: // æ•°å­—5 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
-                case 6: // 数字6 - 需要稍微向下偏移
+                case 6: // æ•°å­—6 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
-                case 7: // 数字7 - 需要稍微向下偏移
+                case 7: // æ•°å­—7 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
-                case 8: // 数字8 - 需要稍微向下偏移
+                case 8: // æ•°å­—8 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
-                case 9: // 数字9 - 需要稍微向下偏移
+                case 9: // æ•°å­—9 - éœ€è¦ç¨å¾®å‘ä¸‹åç§»
                     offsetY = y + this.cell * 0.01;
                     break;
                 default:
@@ -429,11 +432,11 @@ export const renderingMixin = {
         this.ctx.textBaseline = 'middle';
         
         if (this.SIZE === 9) {
-            // 9x9数独：3x3网格排列1-9
+            // 9x9æ•°ç‹¬ï¼š3x3ç½‘æ ¼æŽ’åˆ—1-9
             const positions = [
-                [-1, -1], [0, -1], [1, -1],  // 上排
-                [-1, 0], [0, 0], [1, 0],     // 中排
-                [-1, 1], [0, 1], [1, 1]      // 下排
+                [-1, -1], [0, -1], [1, -1],  // ä¸ŠæŽ’
+                [-1, 0], [0, 0], [1, 0],     // ä¸­æŽ’
+                [-1, 1], [0, 1], [1, 1]      // ä¸‹æŽ’
             ];
             
             marks.forEach(mark => {
@@ -445,10 +448,10 @@ export const renderingMixin = {
                 }
             });
         } else if (this.SIZE === 6) {
-            // 6x6数独：3x2网格排列1-6
+            // 6x6æ•°ç‹¬ï¼š3x2ç½‘æ ¼æŽ’åˆ—1-6
             const positions = [
-                [-1, -1], [0, -1], [1, -1],  // 上排
-                [-1, 1], [0, 1], [1, 1]      // 下排
+                [-1, -1], [0, -1], [1, -1],  // ä¸ŠæŽ’
+                [-1, 1], [0, 1], [1, 1]      // ä¸‹æŽ’
             ];
             
             marks.forEach(mark => {
@@ -460,9 +463,82 @@ export const renderingMixin = {
                 }
             });
         } else {
-            // 其他尺寸：使用原来的简单排列
+            // å…¶ä»–å°ºå¯¸ï¼šä½¿ç”¨åŽŸæ¥çš„ç®€å•æŽ’åˆ—
             const markStr = marks.join(' ');
             this.ctx.fillText(markStr, x, y + this.cell / 4);
         }
     },
+
+    drawUploadThemePiece(x, y, radius, num, fixed) {
+        // 绘制圆圈背景
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        this.ctx.fillStyle = fixed ? '#fffbe6' : '#e0f7fa';
+        this.ctx.fill();
+        this.ctx.strokeStyle = fixed ? '#333' : '#1976d2';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+        
+        const config = this.getUploadThemeImage ? this.getUploadThemeImage(num) : null;
+        const dataUrl = config && config.src ? config.src : null;
+        if (!dataUrl) {
+            this.ctx.fillStyle = fixed ? '#222' : '#1976d2';
+            this.ctx.font = `bold ${Math.max(26, this.cell * 0.7)}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(num.toString(), x, y);
+            return;
+        }
+        if (!this.uploadThemeImageCache) {
+            this.uploadThemeImageCache = {};
+        }
+        let image = this.uploadThemeImageCache[dataUrl];
+        if (!image) {
+            image = new Image();
+            image.src = dataUrl;
+            image.onload = () => {
+                if (this.uploadTheme) {
+                    this.drawGrid();
+                }
+            };
+            image.onerror = (error) => {
+                console.warn('ä¸Šä¼ ä¸»é¢˜å›¾ç‰‡åŠ è½½å¤±è´¥', error);
+            };
+            this.uploadThemeImageCache[dataUrl] = image;
+        }
+        if (!image.complete) {
+            return;
+        }
+        const innerRadius = radius * 0.85;
+        const scale = config && typeof config.scale === 'number' ? config.scale : 1;
+        const offsetX = config && typeof config.offsetX === 'number' ? config.offsetX : 0;
+        const offsetY = config && typeof config.offsetY === 'number' ? config.offsetY : 0;
+        const offsetXPx = offsetX * innerRadius * 2;
+        const offsetYPx = offsetY * innerRadius * 2;
+
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, innerRadius, 0, 2 * Math.PI);
+        this.ctx.closePath();
+        this.ctx.clip();
+        this.ctx.save();
+        this.ctx.translate(offsetXPx, offsetYPx);
+        this.ctx.scale(scale, scale);
+        this.ctx.drawImage(image, -innerRadius, -innerRadius, innerRadius * 2, innerRadius * 2);
+        this.ctx.restore();
+        if (this.uploadThemeShowNumbers) {
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, innerRadius, 0, 2 * Math.PI);
+            this.ctx.fill();
+            this.ctx.fillStyle = fixed ? '#1f2933' : '#0d47a1';
+            this.ctx.font = `bold ${Math.max(28, innerRadius * 0.9)}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(num.toString(), 0, 0);
+        }
+        this.ctx.restore();
+    },
 };
+

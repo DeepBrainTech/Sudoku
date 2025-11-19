@@ -1,4 +1,4 @@
-export const legendMixin = {
+﻿export const legendMixin = {
     getChessSymbolAndColor(num) {
         if (this.SIZE === 6) {
             // 6x6数独的映射关系
@@ -19,9 +19,9 @@ export const legendMixin = {
                 3: ['♗', '#1976d2'],  // Blue bishop
                 4: ['♕', '#222'],     // Dark queen
                 5: ['♔', '#222'],     // Dark king
-                6: ['♝', '#d32f2f'],  // Red bishop
-                7: ['♞', '#d32f2f'],  // Red knight
-                8: ['♜', '#d32f2f'],  // Red rook
+                6: ['♗', '#d32f2f'],  // Red bishop
+                7: ['♘', '#d32f2f'],  // Red knight
+                8: ['♖', '#d32f2f'],  // Red rook
                 9: ['♙', '#222'],     // Dark pawn
             };
             return mapping9x9[num] || [num.toString(), '#222'];
@@ -46,14 +46,14 @@ export const legendMixin = {
     getZodiacSymbolAndColor(num) {
         const mapping = {
             1: ['🐭', '#ff6b9d'], // 鼠 - 粉色
-            2: ['🐄', '#8b4513'], // 牛 - 棕色
+            2: ['🐂', '#8b4513'], // 牛 - 棕色
             3: ['🐅', '#ff8c00'], // 虎 - 橙色
-            4: ['🐇', '#c0c0c0'], // 兔 - 银色
-            5: ['🐉', '#00ff00'], // 龙 - 绿色
+            4: ['🐰', '#c0c0c0'], // 兔 - 银色
+            5: ['🐲', '#00ff00'], // 龙 - 绿色
             6: ['🐍', '#32cd32'], // 蛇 - 绿色
-            7: ['🐎', '#8b4513'], // 马 - 棕色
+            7: ['🐴', '#8b4513'], // 马 - 棕色
             8: ['🐑', '#ffffff'], // 羊 - 白色
-            9: ['🐒', '#ffa500']  // 猴 - 橙色
+            9: ['🐵', '#ffa500']  // 猴 - 橙色
         };
         return mapping[num] || [num.toString(), '#222'];
     },
@@ -83,6 +83,8 @@ export const legendMixin = {
                 this.updateZodiacLegend();
             } else if (this.customTheme) {
                 this.updateCustomLegend();
+            } else if (this.uploadTheme) {
+                this.updateUploadLegend();
             } else {
                 // Number主题 - 显示数字1-9
                 this.updateNumberLegend();
@@ -111,6 +113,10 @@ export const legendMixin = {
     },
 
     updateGenericLegend() {
+        if (this.uploadTheme) {
+            this.updateUploadLegend();
+            return;
+        }
         const legend = document.getElementById('legend');
         if (legend) {
             legend.innerHTML = '';
@@ -200,6 +206,35 @@ export const legendMixin = {
         }
         
         // 使用通用标题
+        this.updateLegendTitle();
+    },
+    updateUploadLegend() {
+        const legend = document.getElementById('legend');
+        if (!legend) return;
+        legend.innerHTML = '';
+        const placeholder = this.languageManager ? this.languageManager.getText('uploadPreviewPlaceholder') : '预览';
+        for (let i = 1; i <= this.SIZE; i++) {
+            const item = document.createElement('div');
+            item.className = 'legend-item upload-theme-legend-item';
+            const label = document.createElement('span');
+            label.textContent = `${i} `;
+            const preview = document.createElement('span');
+            preview.className = 'legend-upload-preview';
+            preview.dataset.number = i.toString();
+            preview.dataset.labelText = i.toString();
+            const imageData = this.getUploadThemeImage ? this.getUploadThemeImage(i) : null;
+            if (this.applyUploadPreviewStyles) {
+                this.applyUploadPreviewStyles(preview, imageData, placeholder, i.toString());
+            } else if (imageData && imageData.src) {
+                preview.style.backgroundImage = `url(${imageData.src})`;
+                preview.classList.add('has-image');
+            } else {
+                preview.textContent = placeholder;
+            }
+            item.appendChild(label);
+            item.appendChild(preview);
+            legend.appendChild(item);
+        }
         this.updateLegendTitle();
     },
 };

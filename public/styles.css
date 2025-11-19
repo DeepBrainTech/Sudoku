@@ -1,4 +1,4 @@
-* {
+﻿* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -120,6 +120,13 @@ header {
 }
 
 .custom-theme-btn {
+    display: none;
+    align-self: flex-start;
+    padding: 6px 12px;
+    font-size: 0.85em;
+}
+
+.upload-theme-btn {
     display: none;
     align-self: flex-start;
     padding: 6px 12px;
@@ -279,6 +286,54 @@ header {
     background: rgba(52, 152, 219, 0.1);
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.upload-theme-legend-item {
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.legend-upload-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px dashed #b0bec5;
+    background-position: center;
+    background-size: cover;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    color: #607d8b;
+    font-size: 0.9em;
+    position: relative;
+    overflow: hidden;
+}
+
+.legend-upload-preview.has-image {
+    border-style: solid;
+    color: transparent;
+}
+
+.legend-upload-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px dashed #b0bec5;
+    background-position: center;
+    background-size: cover;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5em;
+    color: #90a4ae;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.legend-upload-preview.has-image {
+    border-style: solid;
+    color: transparent;
 }
 
 /* 生肖主题样式 - 调整表情符号大小以适应一行显示 */
@@ -899,6 +954,31 @@ header {
     box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
 }
 
+.number-btn-upload {
+    padding: 12px;
+}
+
+.number-btn-upload-preview {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    background-position: center;
+    background-size: cover;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.number-btn-upload-preview.has-image {
+    border-style: solid;
+    color: transparent;
+}
+
 .number-pad-actions {
     display: flex;
     gap: 10px;
@@ -991,6 +1071,8 @@ header {
     border-radius: 15px;
     width: 90%;
     max-width: 750px;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     /* animation: modalSlideIn 0.3s ease-out; */ /* 已取消弹窗打开动画 */
 }
@@ -1187,6 +1269,164 @@ header {
     animation: slideDown 0.3s ease;
 }
 
+/* 上传主题样式 */
+.upload-theme-description {
+    color: #5a6c7d;
+    font-size: 0.95em;
+    line-height: 1.5;
+    margin: 0 0 20px;
+    padding: 12px 15px;
+    background: linear-gradient(135deg, #f0f4ff, #f5fbff);
+    border-left: 4px solid #8ab6ff;
+    border-radius: 6px;
+}
+
+.upload-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.upload-theme-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8fbff, #ffffff);
+    border: 1px solid #dfe7f1;
+    box-shadow: 0 6px 18px rgba(149, 165, 166, 0.15);
+}
+
+.upload-theme-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95em;
+}
+
+.upload-preview {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: 2px dashed #b0bec5;
+    background-color: #fdfdfd;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #90a4ae;
+    font-size: 0.85em;
+    text-align: center;
+    padding: 6px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+}
+
+.upload-preview.has-image {
+    border-style: solid;
+    color: transparent;
+    cursor: grab;
+}
+
+.upload-preview.dragging {
+    cursor: grabbing;
+}
+
+.upload-preview.drag-over {
+    border-color: #4fc3f7;
+    background-color: rgba(79, 195, 247, 0.15);
+    color: #4fc3f7;
+    transform: scale(1.03);
+}
+
+.upload-preview.show-number-active::before,
+.number-btn-upload-preview.show-number-active::before,
+.legend-upload-preview.show-number-active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+}
+
+.upload-preview.show-number-active::after,
+.number-btn-upload-preview.show-number-active::after,
+.legend-upload-preview.show-number-active::after {
+    content: attr(data-label);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.upload-preview.show-number-active::after {
+    font-size: 1.8em;
+    color: #0d47a1;
+}
+
+.number-btn-upload-preview.show-number-active::after {
+    font-size: 1.3em;
+    color: #0d47a1;
+}
+
+.legend-upload-preview.show-number-active::after {
+    font-size: 1em;
+    color: #0d47a1;
+}
+
+.upload-theme-options {
+    margin: 10px 0 5px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.upload-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+    color: #34495e;
+    user-select: none;
+}
+
+.upload-option input {
+    width: 18px;
+    height: 18px;
+}
+
+.upload-input {
+    font-size: 0.85em;
+    border: 1px dashed #b0bec5;
+    border-radius: 8px;
+    padding: 6px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.upload-theme-error {
+    color: #e74c3c;
+    font-weight: 600;
+    min-height: 1.4em;
+    margin: -10px 0 0;
+    padding: 10px 15px;
+    background: #ffebee;
+    border-radius: 8px;
+    border-left: 4px solid #e74c3c;
+    display: none;
+}
+
+.upload-theme-error:not(:empty) {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -1274,3 +1514,4 @@ header {
     color: #e74c3c;
     font-weight: bold;
 }
+

@@ -197,13 +197,25 @@ export const puzzleManagementMixin = {
         this.mahjongTheme = (theme === 'mahjong');
         this.zodiacTheme = (theme === 'zodiac');
         this.customTheme = (theme === 'custom');
+        this.uploadTheme = (theme === 'upload');
 
         this.updateCustomThemeButton();
+        this.updateUploadThemeButton();
 
         if (this.customTheme) {
             this.openCustomThemeModal();
         } else {
             this.closeCustomThemeModal();
+        }
+
+        if (this.uploadTheme) {
+            if (!this.hasUploadThemeImages()) {
+                this.openUploadThemeModal();
+            } else {
+                this.closeUploadThemeModal();
+            }
+        } else {
+            this.closeUploadThemeModal();
         }
 
         this.forceUpdateLegend();

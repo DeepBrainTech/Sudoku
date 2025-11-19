@@ -96,6 +96,51 @@ export const eventHandlersMixin = {
                 }
             });
         }
+
+        const uploadThemeBtn = document.getElementById('uploadThemeBtn');
+        if (uploadThemeBtn) {
+            uploadThemeBtn.addEventListener('click', () => this.openUploadThemeModal());
+        }
+
+        const uploadThemeForm = document.getElementById('uploadThemeForm');
+        if (uploadThemeForm) {
+            uploadThemeForm.addEventListener('submit', (e) => this.handleUploadThemeSubmit(e));
+        }
+
+        const closeUploadTheme = document.getElementById('closeUploadTheme');
+        if (closeUploadTheme) {
+            closeUploadTheme.addEventListener('click', () => this.closeUploadThemeModal());
+        }
+
+        const cancelUploadTheme = document.getElementById('cancelUploadTheme');
+        if (cancelUploadTheme) {
+            cancelUploadTheme.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.closeUploadThemeModal();
+            });
+        }
+
+        const resetUploadTheme = document.getElementById('resetUploadTheme');
+        if (resetUploadTheme) {
+            resetUploadTheme.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.resetUploadThemeDraft();
+            });
+        }
+
+        const uploadThemeModal = document.getElementById('uploadThemeModal');
+        if (uploadThemeModal) {
+            uploadThemeModal.addEventListener('click', (e) => {
+                if (e.target === uploadThemeModal) {
+                    this.closeUploadThemeModal();
+                }
+            });
+        }
+
+        const showUploadNumbers = document.getElementById('showUploadNumbers');
+        if (showUploadNumbers) {
+            showUploadNumbers.addEventListener('change', (e) => this.handleToggleUploadNumbers(e.target.checked));
+        }
     },
 
     // 将指针点击/轻触转换为棋盘操作

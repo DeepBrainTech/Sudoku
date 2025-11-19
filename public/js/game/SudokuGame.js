@@ -9,6 +9,7 @@ import { customThemeMixin } from '../utils/customThemeMixin.js';
 import { feedbackMixin } from '../ui/feedbackMixin.js';
 import { numberPadMixin } from '../ui/numberPadMixin.js';
 import { audioMixin } from '../utils/audioMixin.js';
+import { uploadThemeMixin } from '../utils/uploadThemeMixin.js';
 import { LanguageManager } from '../../languages.js';
 
 export class SudokuGame {
@@ -45,11 +46,19 @@ export class SudokuGame {
         this.mahjongTheme = false; // 麻将牌符号
         this.zodiacTheme = false; // 中国生肖符号
         this.customTheme = false;
+        this.uploadTheme = false;
 
         const customData = this.loadCustomSymbols();
         this.customSymbols = customData.symbols;
         this.customSymbolsStored = customData.stored;
         this.customThemeModalVisible = false;
+        const uploadThemeData = this.loadUploadThemeImages();
+        this.uploadedThemeImages = uploadThemeData.images;
+        this.uploadThemeImagesStored = uploadThemeData.stored;
+        this.uploadThemeModalVisible = false;
+        this.uploadThemeDraftImages = this.cloneUploadImageMap ? this.cloneUploadImageMap(this.uploadedThemeImages) : { ...this.uploadedThemeImages };
+        this.uploadThemeImageCache = {};
+        this.uploadThemeShowNumbers = this.loadUploadThemeShowNumbers ? this.loadUploadThemeShowNumbers() : false;
         
         // 每个格子的铅笔标记集合
         this.pencilMarks = Array(this.SIZE).fill().map(() => Array(this.SIZE).fill().map(() => new Set()));
@@ -98,6 +107,13 @@ export class SudokuGame {
         if (this.customThemeModalVisible) {
             this.populateCustomThemeInputs();
         }
+        if (this.uploadTheme) {
+            if (this.uploadThemeModalVisible) {
+                this.populateUploadThemeInputs();
+            } else if (!this.hasUploadThemeImages()) {
+                this.openUploadThemeModal();
+            }
+        }
 
         // 强制完整UI刷新以避免某些触摸设备上的陈旧画布
         this.forceUpdateLegend();
@@ -137,6 +153,10 @@ export class SudokuGame {
         this.drawGrid();
         this.updatePuzzleSelector();
         this.updateCustomThemeButton();
+        this.updateUploadThemeButton();
+        if (this.updateUploadNumbersCheckbox) {
+            this.updateUploadNumbersCheckbox();
+        }
     }
 }
 
@@ -149,6 +169,7 @@ Object.assign(
     renderingMixin,
     legendMixin,
     customThemeMixin,
+    uploadThemeMixin,
     feedbackMixin,
     numberPadMixin,
     audioMixin,
