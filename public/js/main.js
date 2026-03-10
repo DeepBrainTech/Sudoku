@@ -1,4 +1,4 @@
-import { LanguageManager } from '../languages.js';
+import { LanguageManager } from '../languages.js?v=2';
 import { SudokuGame } from './game/SudokuGame.js';
 
 // 当DOM内容加载完成时初始化游戏
