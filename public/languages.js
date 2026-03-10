@@ -1,4 +1,4 @@
-﻿// 多语言支持文件
+// 多语言支持文件
 export const languages = {
     zh: {
         // 页面标题和头部
@@ -59,6 +59,7 @@ export const languages = {
         
         // 游戏说明按钮
         gameInstructions: "游戏说明",
+        backToPortal: "返回主门户",
         
         // 主题选择
         theme: "主题",
@@ -149,6 +150,7 @@ export const languages = {
         
         // Game instructions button
         gameInstructions: "Game Instructions",
+        backToPortal: "Back to Main Portal",
         
         // Theme selection
         theme: "Theme",

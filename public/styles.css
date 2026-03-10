@@ -1,4 +1,4 @@
-﻿* {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -16,6 +16,38 @@ body {
     margin: 0 auto;
     padding: 20px;
     position: relative;
+}
+
+/* 左上角返回主门户按钮（固定定位，始终在视口左上角） */
+.back-to-portal-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1500;
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.9);
+    color: rgb(51, 51, 51);
+    text-decoration: none;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.back-to-portal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    background: rgba(255, 255, 255, 1);
+    color: rgb(51, 51, 51);
+}
+.back-to-portal-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 顶部控制按钮样式 */
