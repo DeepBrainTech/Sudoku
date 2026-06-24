@@ -10,22 +10,14 @@ export const eventHandlersMixin = {
         this.canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('click', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            this.canvas.dispatchEvent(mouseEvent);
-        });
+            if (touch) {
+                this.handleClick(touch);
+            }
+        }, { passive: false });
         
         this.canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('mousemove', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            this.canvas.dispatchEvent(mouseEvent);
-        });
+        }, { passive: false });
         
         // 键盘输入处理
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
@@ -143,11 +135,21 @@ export const eventHandlersMixin = {
         }
     },
 
-    // 将指针点击/轻触转换为棋盘操作
-    handleClick(e) {
+    // 将浏览器坐标换算为画布内部坐标，兼容 CSS 缩放后的 canvas。
+    getCanvasPoint(e) {
         const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+
+        return {
+            x: (e.clientX - rect.left) * scaleX,
+            y: (e.clientY - rect.top) * scaleY,
+        };
+    },
+
+    // 将指针点击/轻触转换为棋盘操作。
+    handleClick(e) {
+        const { x, y } = this.getCanvasPoint(e);
         
         // 检查是否激活了围棋棋盘布局
         const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
@@ -213,7 +215,7 @@ export const eventHandlersMixin = {
             this.selected = [r, c];
         } else {
             // 不在工具模式时切换选择
-            this.selected = (this.selected && this.selected[0] === r && this.selected[1] === c) ? null : [r, c];
+            this.selected = [r, c];
         }
         
         // 立即重绘网格以更新高亮
@@ -230,9 +232,7 @@ export const eventHandlersMixin = {
 
     // 跟踪桌面交互的悬停状态
     handleMouseMove(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const { x, y } = this.getCanvasPoint(e);
         
         // 检查是否激活了围棋棋盘布局
         const goBoardRadio = document.querySelector('input[name="boardSize"][data-go-board="true"]');
@@ -271,9 +271,6 @@ export const eventHandlersMixin = {
         if (r >= 0 && r < this.SIZE && c >= 0 && c < this.SIZE) {
             this.highlightIntersection(r, c);
             // 只有在数字键盘隐藏时才改变选择
-            if (!this.numberPadVisible) {
-                this.selected = [r, c];
-            }
         }
     },
 
