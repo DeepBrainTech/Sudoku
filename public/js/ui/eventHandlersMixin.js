@@ -9,7 +9,6 @@ export const eventHandlersMixin = {
         // 画布的触摸事件支持
         this.canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            this.markTouchInputDetected();
             const touch = e.touches[0];
             if (touch) {
                 this.handleClick(touch);
@@ -222,11 +221,10 @@ export const eventHandlersMixin = {
         // 立即重绘网格以更新高亮
         this.drawGrid();
         
-        // 在触摸设备上，如果数字键盘隐藏则显示
-        if (this.selected && this.hasTouchCapability() && !this.numberPadVisible) {
+        // 选中格子时显示小键盘
+        if (this.selected && !this.numberPadVisible) {
             this.showNumberPad();
-        } else if (this.selected && this.hasTouchCapability() && this.numberPadVisible) {
-            // 当数字键盘已可见时刷新按钮
+        } else if (this.selected && this.numberPadVisible) {
             this.updateNumberPadButtons();
         }
     },
