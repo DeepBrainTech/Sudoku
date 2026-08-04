@@ -57,6 +57,35 @@ export const boardGenerationMixin = {
         return true;
     },
 
+    // 计数解的数量，达到 limit 时提前停止以节省计算
+    countSolutions(board, limit = 2) {
+        let count = 0;
+
+        const search = () => {
+            if (count >= limit) return;
+
+            for (let r = 0; r < this.SIZE; r++) {
+                for (let c = 0; c < this.SIZE; c++) {
+                    if (board[r][c] === 0) {
+                        for (let num = 1; num <= this.SIZE; num++) {
+                            if (this.isValid(board, r, c, num)) {
+                                board[r][c] = num;
+                                search();
+                                board[r][c] = 0;
+                                if (count >= limit) return;
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+            count++;
+        };
+
+        search();
+        return count;
+    },
+
     // 在移除线索之前构建完全求解的棋盘
     generateFullBoard() {
         for (let attempt = 0; attempt < 10; attempt++) {
@@ -186,16 +215,17 @@ export const boardGenerationMixin = {
                 const backup = puzzle[r][c];
                 puzzle[r][c] = 0;
                 const boardCopy = puzzle.map(row => [...row]);
-                
-                if (this.solve(boardCopy)) {
+
+                // 仅当谜题仍保持唯一解时才允许挖空
+                if (this.countSolutions(boardCopy, 2) === 1) {
                     toRemove--;
                 } else {
                     puzzle[r][c] = backup;
                 }
             }
-            
+
             const boardCopy = puzzle.map(row => [...row]);
-            if (this.solve(boardCopy)) {
+            if (this.countSolutions(boardCopy, 2) === 1) {
                 return puzzle;
             }
         }
