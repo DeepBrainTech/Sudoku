@@ -37,6 +37,7 @@ export class SudokuGame {
         this.isDragging = false;
         this.dragOffset = { x: 0, y: 0 };
         this.lastTouchTime = 0;
+        this.touchInputDetected = false;
         
         // 游戏模式标志
         this.hintMode = false;

@@ -3,11 +3,36 @@ export const numberPadMixin = {
     initializeNumberPad() {
         this.updateNumberPad();
         this.setupNumberPadEventListeners();
+        this.setupTouchDetection();
     },
 
     isMobileDevice() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+    },
+
+    // 检测设备是否具备触摸输入能力（含触屏笔记本、外接触控屏）
+    hasTouchCapability() {
+        return this.touchInputDetected ||
+               navigator.maxTouchPoints > 0 ||
+               window.matchMedia('(any-pointer: coarse)').matches;
+    },
+
+    // 记录运行时触摸输入（外接触控屏可能仅在触摸时才可被识别）
+    markTouchInputDetected() {
+        this.touchInputDetected = true;
+    },
+
+    // 监听全局触摸/指针事件，捕获外接触控屏等延迟上报的设备
+    setupTouchDetection() {
+        const onTouch = () => this.markTouchInputDetected();
+
+        document.addEventListener('touchstart', onTouch, { passive: true });
+        document.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'touch') {
+                onTouch();
+            }
+        }, { passive: true });
     },
 
     // 区分真正的移动设备（手机/平板）和触屏笔记本
