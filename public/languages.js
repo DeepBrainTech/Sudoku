@@ -210,6 +210,12 @@ export class LanguageManager {
     }
     
     updatePageLanguage() {
+        const portalLink = document.querySelector('.back-to-portal-btn');
+        if (portalLink) {
+            const portalLanguage = this.currentLanguage === 'en' ? 'en' : 'zn';
+            portalLink.href = `https://deepbraintechnology.com/${portalLanguage}/braingames`;
+        }
+
         // 更新所有带有data-i18n属性的元素
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
